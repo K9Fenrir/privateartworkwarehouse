@@ -1,0 +1,11 @@
+kumuluzee:
+  name: private-artwork-warehouse
+  version: 1.0.0
+  env:
+    name: dev
+  datasources:
+  - jndi-name: jdbc/paw
+    connection-url: jdbc:postgresql://192.168.99.100:5432/paw
+    username: postgres
+    password: postgres
+    max-pool-size: 20
