@@ -29,13 +29,17 @@ public class CreationBean {
     private static final Logger log = Logger.getLogger(CreationBean.class.getName());
 
     public Post createNewPost(PostCreationDTO pdto) throws IOException{
-        Post newPost = postBean.addPost(pdto.getTagNames(), pdto.getDescription(), pdto.getRating(), pdto.getAuthorID());
+        if (validatePostRating(pdto.getRating())) {
+            Post newPost = postBean.addPost(pdto.getTagNames(), pdto.getDescription(), pdto.getRating().toLowerCase(), pdto.getAuthorID());
 
-        if (pdto.getFilePart() != null){
-            saveImage(pdto.getFilePart(), newPost.getId());
+            if (pdto.getFilePart() != null){
+                saveImage(pdto.getFilePart(), newPost.getId());
+            }
+
+            return newPost;
         }
 
-        return newPost;
+        return null;
     }
 
     public User createNewUser(UserCreationDTO udto){
@@ -147,6 +151,18 @@ public class CreationBean {
 
         if (!valid){
             log.info("Invalid tag type: " + tagType);
+        }
+
+        return valid;
+    }
+
+    // Post rating can only be one of three acceptable
+    private boolean validatePostRating(String rating){
+        String[] validTypes = new String[]{"safe", "questionable", "explicit"};
+        boolean valid = Arrays.stream(validTypes).anyMatch(rating.toLowerCase()::equals);
+
+        if (!valid){
+            log.info("Invalid post rating: " + rating);
         }
 
         return valid;

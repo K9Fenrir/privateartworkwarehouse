@@ -71,79 +71,130 @@ public class PostBean {
     }
 
     @Transactional
-    public void incScore(int postID, int inc){
+    public Post incrementScore(int postID, int inc){
 
         Post post = em.find(Post.class, postID);
 
-        post.setRating(post.getRating() + inc);
+        if (post != null) {
+            post.setRating(post.getRating() + inc);
 
-        em.merge(post);
+            em.merge(post);
+        }
+
+        return post;
     }
 
     @Transactional
-    public void editDescription(int postID, String description){
+    public Post editDescription(int postID, String description){
         Post post = em.find(Post.class, postID);
 
         if (post != null){
             post.setDescription(description);
+
+            em.merge(post);
         }
+
+        return post;
     }
 
     @Transactional
-    public void addNewFavourite(int postID, int userID) {
-
+    public Post editRating(int postID, String rating){
         Post post = em.find(Post.class, postID);
 
         if (post != null){
-            User user = em.find(User.class, userID);
+            post.setRating(rating);
+
+            em.merge(post);
+        }
+
+        return post;
+    }
+
+    @Transactional
+    public Post addNewFavourite(int postID, int userID) {
+
+        Post post = em.find(Post.class, postID);
+        User user = em.find(User.class, userID);
+
+        if (post != null){
             if (user != null){
                 post.getFavouritedBy().add(user);
                 user.getFavourites().add(post);
+
+                em.merge(user);
             }
+
+            em.merge(post);
         }
+
+        return post;
     }
 
     @Transactional
-    public void removeFavourite(int postID, int userID){
+    public Post removeFavourite(int postID, int userID){
 
         Post post = em.find(Post.class, postID);
+        User user = em.find(User.class, userID);
 
         if (post != null){
-            User user = em.find(User.class, userID);
             if (user != null){
                 post.getFavouritedBy().remove(user);
                 user.getFavourites().remove(post);
+
+                em.merge(user);
             }
+
+            em.merge(post);
         }
+
+        return post;
     }
 
     @Transactional
-    public void addTags(int postID, String[] tagNames){
+    public Post addTags(int postID, String[] tagNames){
 
         Post post = em.find(Post.class, postID);
 
-        for (String tagName : tagNames){
-            Tag tag = em.find(Tag.class, tagName);
+        if (post != null) {
+            for (String tagName : tagNames) {
+                Tag tag = em.find(Tag.class, tagName);
 
-            if (post != null && tag != null){
-                post.getPostTags().add(tag);
-                tag.getTaggedPosts().add(post);
+                if (tag != null) {
+                    post.getPostTags().add(tag);
+                    tag.getTaggedPosts().add(post);
+
+                    em.merge(tag);
+                }
             }
+
+            em.merge(post);
+            em.flush();
         }
+        return post;
     }
 
     @Transactional
-    public void removeTags(int postID, String[] tagNames){
+    public Post removeTags(int postID, String[] tagNames){
 
         Post post = em.find(Post.class, postID);
-        for (String tagName : tagNames){
-            Tag tag = em.find(Tag.class, tagName);
 
-            if (post != null && tag != null){
-                post.getPostTags().remove(tag);
-                tag.getTaggedPosts().remove(post);
+        if (post != null) {
+            for (String tagName : tagNames) {
+                Tag tag = em.find(Tag.class, tagName);
+
+                if (post != null && tag != null) {
+                    post.getPostTags().remove(tag);
+                    tag.getTaggedPosts().remove(post);
+
+                    em.merge(tag);
+                }
             }
+
+            em.merge(post);
+            em.flush();
         }
+
+        return post;
     }
 
     @Transactional

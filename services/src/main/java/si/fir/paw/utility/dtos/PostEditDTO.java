@@ -14,6 +14,10 @@ public class PostEditDTO implements Serializable {
 
     private String[] tagsToRemove;
 
+    private String newRating;
+
+    private int scoreIncrement;
+
     public PostEditDTO(){
     }
 
@@ -55,5 +59,21 @@ public class PostEditDTO implements Serializable {
 
     public void setTagsToRemove(String[] tagsToRemove) {
         this.tagsToRemove = tagsToRemove;
+    }
+
+    public String getNewRating() {
+        return newRating;
+    }
+
+    public void setNewRating(String newRating) {
+        this.newRating = newRating;
+    }
+
+    public int getScoreIncrement() {
+        return scoreIncrement;
+    }
+
+    public void setScoreIncrement(int scoreIncrement) {
+        this.scoreIncrement = scoreIncrement;
     }
 }

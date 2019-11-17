@@ -47,21 +47,32 @@ public class TagBean {
     }
 
     @Transactional
-    public Tag editTag(String id, String description, String type){
+    public Tag editTagDescription(String id, String description){
 
         Tag tag = em.find(Tag.class, id);
 
         if (tag != null){
-            if (description != null){
-                tag.setDescription(description);
-            }
-            if (type != null){
-                tag.setType(type);
-            }
+            tag.setDescription(description);
+
+            em.merge(tag);
+            em.flush();
         }
 
         return tag;
+    }
 
+    @Transactional
+    public Tag editTagType(String id, String type){
+
+        Tag tag = em.find(Tag.class, id);
+
+        if (tag != null){
+            tag.setType(type);
+
+            em.merge(tag);
+            em.flush();
+        }
+        return tag;
     }
 
     @Transactional
