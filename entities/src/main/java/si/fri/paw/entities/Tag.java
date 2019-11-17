@@ -1,6 +1,9 @@
 package si.fri.paw.entities;
 
+import si.fri.paw.enums.PAW_Enums;
+
 import javax.persistence.*;
+import java.util.Set;
 
 @Entity(name = "tag")
 @NamedQueries(value =
@@ -17,6 +20,12 @@ public class Tag {
 
     private String type;
 
+    @ManyToMany(mappedBy = "postTags")
+    private Set<Post> taggedPosts;
+
+    public Tag() {
+    }
+
     public String getId() {
         return id;
     }
@@ -25,11 +34,11 @@ public class Tag {
         this.id = id;
     }
 
-    public String getDescrption() {
+    public String getDescription() {
         return description;
     }
 
-    public void setDescrption(String description) {
+    public void setDescription(String description) {
         this.description = description;
     }
 
@@ -41,4 +50,11 @@ public class Tag {
         this.type = type;
     }
 
+    public Set<Post> getTaggedPosts() {
+        return taggedPosts;
+    }
+
+    public void setTaggedPosts(Set<Post> taggedPosts) {
+        this.taggedPosts = taggedPosts;
+    }
 }

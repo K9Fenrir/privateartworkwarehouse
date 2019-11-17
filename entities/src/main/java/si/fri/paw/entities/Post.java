@@ -1,8 +1,13 @@
 package si.fri.paw.entities;
 
 import javax.persistence.*;
+import java.util.Set;
 
-@Entity
+@Entity(name = "post")
+@NamedQueries(value =
+        {
+                @NamedQuery(name = "Post.getAll", query = "SELECT p FROM post p")
+        })
 public class Post {
 
     @Id
@@ -15,6 +20,18 @@ public class Post {
 
     @Column(columnDefinition = "integer default 0")
     private int score;
+
+    @ManyToMany
+    private Set<Tag> postTags;
+
+    @ManyToMany(cascade = CascadeType.PERSIST)
+    private Set<User> favouritedBy;
+
+    @ManyToOne
+    private User author;
+
+    public Post() {
+    }
 
     public Integer getId() {
         return id;
@@ -47,4 +64,29 @@ public class Post {
     public void setScore(int score) {
         this.score = score;
     }
+
+    public Set<Tag> getPostTags() {
+        return postTags;
+    }
+
+    public void setPostTags(Set<Tag> postTags) {
+        this.postTags = postTags;
+    }
+
+    public Set<User> getFavouritedBy() {
+        return favouritedBy;
+    }
+
+    public void setFavouritedBy(Set<User> favouritedBy) {
+        this.favouritedBy = favouritedBy;
+    }
+
+    public User getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(User author) {
+        this.author = author;
+    }
+
 }

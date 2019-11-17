@@ -1,13 +1,14 @@
 package si.fri.paw.entities;
 
 import javax.persistence.*;
+import java.util.Set;
 
-@Entity(name = "user")
+@Entity(name = "users")
 @NamedQueries(value =
         {
-                @NamedQuery(name = "User.getAll", query = "SELECT u FROM user u"),
-                @NamedQuery(name = "User.getByUsername", query = "SELECT u FROM user u WHERE u.username = :username"),
-                @NamedQuery(name = "User.getByEmail", query = "SELECT u FROM user u WHERE u.email = :email"),
+                @NamedQuery(name = "User.getAll", query = "SELECT u FROM users u"),
+                @NamedQuery(name = "User.getByUsername", query = "SELECT u FROM users u WHERE u.username = :username"),
+                @NamedQuery(name = "User.getByEmail", query = "SELECT u FROM users u WHERE u.email = :email"),
         })
 
 public class User {
@@ -19,6 +20,12 @@ public class User {
         private String username;
 
         private String email;
+
+        @OneToMany(mappedBy = "author", cascade = CascadeType.PERSIST)
+        private Set<Post> uploads;
+
+        @ManyToMany(mappedBy = "favouritedBy", cascade = CascadeType.PERSIST)
+        private Set<Post> favourites;
 
         public Integer getId() {
                 return id;
@@ -42,5 +49,21 @@ public class User {
 
         public void setEmail(String email) {
                 this.email = email;
+        }
+
+        public Set<Post> getUploads() {
+                return uploads;
+        }
+
+        public void setUploads(Set<Post> uploads) {
+                this.uploads = uploads;
+        }
+
+        public Set<Post> getFavourites() {
+                return favourites;
+        }
+
+        public void setFavourites(Set<Post> favourites) {
+                this.favourites = favourites;
         }
 }

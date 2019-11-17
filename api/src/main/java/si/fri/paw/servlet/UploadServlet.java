@@ -1,7 +1,7 @@
 package si.fri.paw.servlet;
 
-import si.fir.paw.utility.beans.UserBean;
-import si.fri.paw.entities.User;
+import si.fir.paw.utility.beans.CreationBean;
+import si.fir.paw.utility.dtos.PostCreationDTO;
 
 import javax.inject.Inject;
 import javax.servlet.ServletException;
@@ -11,10 +11,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.Collection;
-import java.util.List;
+import java.io.*;
 import java.util.logging.Logger;
 
 @MultipartConfig
@@ -23,11 +20,41 @@ public class UploadServlet extends HttpServlet {
 
     private static final Logger log = Logger.getLogger(JPAServlet.class.getName());
 
+    @Inject
+    private CreationBean creationBean;
+
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        Part file = req.getPart("file");
-        log.info(file.toString());
-        log.info(req.getParameter("description"));
+        // Create path components to save the file
+        final String description = req.getParameter("description");
+        final String tags = req.getParameter("tags");
+        final Part filePart = req.getPart("file");
+        final String fileName = getFileName(filePart);
+
+        PostCreationDTO pdto = new PostCreationDTO();
+
+        pdto.setAuthorID(1);
+        pdto.setDescription(description);
+        pdto.setRating("safe");
+        pdto.setTagNames(tags.split(" "));
+        pdto.setFilePart(filePart);
+
+        creationBean.createNewPost(pdto);
+
         resp.sendRedirect("servlet");
+
     }
+
+    private String getFileName(final Part part) {
+        final String partHeader = part.getHeader("content-disposition");
+        log.info("Part Header = {0} " + partHeader);
+        for (String content : part.getHeader("content-disposition").split(";")) {
+            if (content.trim().startsWith("filename")) {
+                return content.substring(
+                        content.indexOf('=') + 1).trim().replace("\"", "");
+            }
+        }
+        return null;
+    }
+
 }

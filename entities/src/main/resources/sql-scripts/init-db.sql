@@ -1,4 +1,13 @@
-INSERT INTO user (username, email) VALUES ('K9Fenrir', 'k9fenrir@gmail.com');
-INSERT INTO user (username, email) VALUES ('Heindell', 'heindell.lemuen@gmail.com');
-INSERT INTO tag (id, description, type) VALUES ('F-R95', 'Art by F-R95', 'artist');
+INSERT INTO users (username, email) VALUES ('K9Fenrir', 'k9fenrir@gmail.com');
+INSERT INTO users (username, email) VALUES ('Heindell', 'heindell.lemuen@gmail.com');
+INSERT INTO users (username, email) VALUES ('Xelphos', 'xelphos@xelphos.com');
+INSERT INTO tag (id, description, type) VALUES ('F-R95', 'Image by F-R95', 'artist');
+INSERT INTO tag (id, description, type) VALUES ('Hioshiru', 'Image by Hioshiru', 'artist');
 INSERT INTO tag (id, description, type) VALUES ('canine', 'Contains species: canine', 'species');
+INSERT INTO tag (id, description, type) VALUES ('human', 'Contains species: human', 'species');
+INSERT INTO tag (id, description, type) VALUES ('feline', 'Contains species: feline', 'species');
+INSERT INTO tag (id, description, type) VALUES ('standing', 'One or more people are standing', 'general');
+INSERT INTO tag (id, description, type) VALUES ('outdoors', 'The image is taking place outside', 'general');
+INSERT INTO tag (id, description, type) VALUES ('hat', 'There is a hat in the image', 'general');
+INSERT INTO tag (id, description, type) VALUES ('window', 'There is a window in the image', 'general');
+INSERT INTO tag (id, description, type) VALUES ('table', 'There is a table in the image', 'general');
