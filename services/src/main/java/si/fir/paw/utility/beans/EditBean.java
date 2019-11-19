@@ -2,14 +2,18 @@ package si.fir.paw.utility.beans;
 
 import si.fir.paw.utility.dtos.PostEditDTO;
 import si.fir.paw.utility.dtos.TagEditDTO;
+import si.fir.paw.utility.dtos.UserEditDTO;
 import si.fri.paw.entities.Post;
 import si.fri.paw.entities.Tag;
+import si.fri.paw.entities.User;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @ApplicationScoped
 public class EditBean {
@@ -153,6 +157,46 @@ public class EditBean {
         return  null;
     }
 
+    public User editUserUsername(UserEditDTO udto){
+        if (validateUsername(udto.getNewUsername())){
+            User editedUser = userBean.editUserUsername(udto.getId(), udto.getNewUsername());
+
+            if (editedUser != null){
+                log.info("Edited username of user " + editedUser.getId() + "to '" + editedUser.getUsername() + "'");
+            }
+            else{
+                log.info("Failed to edit username of user " + udto.getId() + ": user does not exist");
+            }
+
+            return editedUser;
+        }
+        else{
+            log.info("Failed to edit username of user " + udto.getId() + ": invalid new username");
+        }
+
+        return null;
+    }
+
+    public User editUserEmail(UserEditDTO udto){
+        if (validateEmail(udto.getNewEmail())){
+            User editedUser = userBean.editUserEmail(udto.getId(), udto.getNewEmail());
+
+            if (editedUser != null){
+                log.info("Edited email of user " + editedUser.getId() + "to '" + editedUser.getEmail() + "'");
+            }
+            else{
+                log.info("Failed to edit email of user " + udto.getId() + ": user does not exist");
+            }
+
+            return editedUser;
+        }
+        else{
+            log.info("Failed to edit email of user " + udto.getId() + ": invalid new email");
+        }
+
+        return null;
+    }
+
     // Tag type can only be one of four acceptable
     private boolean validateTagType(String tagType){
         String[] validTypes = new String[]{"artist", "copyright", "species", "general"};
@@ -195,6 +239,34 @@ public class EditBean {
         listString = "[" + listString.substring(0, listString.length()-2) + "]";
 
         return listString;
+    }
+
+    // Email has to be a valid email address
+    private boolean validateEmail(String email){
+        String regex = "^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(email);
+
+        boolean valid = matcher.matches();
+        if (!valid){
+            log.info("Invalid edit email: " + email);
+        }
+
+        return valid;
+    }
+
+    // Username can only contain lower & uppercase letters, digits from 0 to 9, underscores, dots, and dashes
+    private boolean validateUsername(String username){
+        String regex = "^[a-zA-Z0-9._-]{3,}$";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(username);
+
+        boolean valid = matcher.matches();
+        if (!valid){
+            log.info("Invalid edit username: " + username);
+        }
+
+        return valid;
     }
 
 }

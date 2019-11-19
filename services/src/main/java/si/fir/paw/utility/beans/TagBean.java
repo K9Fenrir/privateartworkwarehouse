@@ -1,7 +1,5 @@
 package si.fir.paw.utility.beans;
 
-import si.fir.paw.utility.dtos.PostManagementDTO;
-import si.fir.paw.utility.dtos.TagManagementDTO;
 import si.fri.paw.entities.Post;
 import si.fri.paw.entities.Tag;
 
@@ -76,18 +74,22 @@ public class TagBean {
     }
 
     @Transactional
-    public void removeTag(String id){
+    public boolean removeTag(String id){
 
         Tag tag = em.find(Tag.class, id);
 
         if (tag != null){
-            PostManagementDTO pdto = new PostManagementDTO();
-            TagManagementDTO tdto = new TagManagementDTO();
-            tdto.setId(tag.getId());
             for (Post post : tag.getTaggedPosts()){
-                pdto.setId(post.getId());
+                post.getPostTags().remove(tag);
+
+                em.merge(post);
             }
+
             em.remove(tag);
+
+            return true;
         }
+
+        return false;
     }
 }

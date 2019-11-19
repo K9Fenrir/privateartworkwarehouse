@@ -1,5 +1,6 @@
 package si.fir.paw.utility.beans;
 
+import si.fri.paw.entities.Post;
 import si.fri.paw.entities.User;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -66,20 +67,54 @@ public class UserBean {
     }
 
     @Transactional
-    public void editUser(String username, String email){
-
-    }
-
-    @Transactional
-    public void deleteUser(int id){
+    public User editUserUsername(int id, String username){
 
         User user = em.find(User.class, id);
 
         if (user != null){
-            log.info(user.getUsername());
-            em.remove(user);
-            em.flush();
+            user.setUsername(username);
+
+            em.merge(user);
         }
+
+        return user;
+    }
+
+    @Transactional
+    public User editUserEmail(int id, String email){
+
+        User user = em.find(User.class, id);
+
+        if (user != null){
+            user.setEmail(email);
+
+            em.merge(user);
+        }
+
+        return user;
+    }
+
+    @Transactional
+    public boolean removeUser(int id){
+
+        User user = em.find(User.class, id);
+
+        if (user != null){
+            for (Post post : user.getFavourites()){
+                post.getFavouritedBy().remove(user);
+                em.merge(post);
+            }
+            for (Post post : user.getUploads()){
+                post.setAuthor(null);
+                em.merge(post);
+            }
+
+            em.remove(user);
+
+            return true;
+        }
+
+        return false;
     }
 
 }

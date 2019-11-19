@@ -1,18 +1,12 @@
 package si.fir.paw.utility.beans;
 
-import si.fir.paw.utility.dtos.PostEditDTO;
-import si.fir.paw.utility.dtos.PostManagementDTO;
-import si.fir.paw.utility.dtos.TagManagementDTO;
-import si.fir.paw.utility.dtos.UserManagmentDTO;
 import si.fri.paw.entities.Post;
 import si.fri.paw.entities.Tag;
 import si.fri.paw.entities.User;
-import si.fri.paw.enums.PAW_Enums;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.PersistenceException;
 import javax.transaction.Transactional;
 import java.util.HashSet;
 import java.util.List;
@@ -198,20 +192,29 @@ public class PostBean {
     }
 
     @Transactional
-    public boolean removePost(PostManagementDTO pdto){
+    public boolean removePost(int postID){
 
-        Post post = em.find(Post.class, pdto.getId());
+        Post post = em.find(Post.class, postID);
 
         if (post != null){
-
+            for (Tag tag : post.getPostTags()){
+                tag.getTaggedPosts().remove(post);
+                em.merge(tag);
+            }
+            for (User user : post.getFavouritedBy()){
+                user.getFavourites().remove(post);
+                em.merge(user);
+            }
+            User author = post.getAuthor();
+            author.getUploads().remove(post);
+            em.merge(author);
 
             em.remove(post);
-        }
-        else{
-            return false;
+
+            return true;
         }
 
-        return true;
+        return false;
     }
 
 }

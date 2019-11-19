@@ -1,8 +1,7 @@
 package si.fri.paw.servlet;
 
 import si.fir.paw.utility.beans.*;
-import si.fir.paw.utility.dtos.PostCreationDTO;
-import si.fir.paw.utility.dtos.PostEditDTO;
+import si.fir.paw.utility.dtos.*;
 import si.fri.paw.entities.Post;
 import si.fri.paw.entities.Tag;
 import si.fri.paw.entities.User;
@@ -33,6 +32,8 @@ public class JPAServlet extends HttpServlet {
     @Inject
     private EditBean editBean;
 
+    @Inject DeleteBean deleteBean;
+
     @Inject
     private UserBean userBean;
 
@@ -41,6 +42,19 @@ public class JPAServlet extends HttpServlet {
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         addTestPosts();
+
+//        demoPostEdits();
+
+//        demoTagEdits();
+
+//        demoUserEdits();
+
+//        demoDeleteTag();
+
+//        demoDeletePost();
+
+//        demoDeleteUser();
+
     }
 
     @Override
@@ -216,16 +230,84 @@ public class JPAServlet extends HttpServlet {
         }
 
         PostEditDTO t1 = new PostEditDTO();
-        t1.setEditPostID(1);
-        t1.setNewTags(new String[]{"feline", "hat"});
+        t1.setEditPostID(2);
+        t1.setFavouriteEditUserID(1);
 
-        PostEditDTO t2 = new PostEditDTO();
-        t2.setEditPostID(1);
-        t2.setTagsToRemove(new String[]{"canine", "outdoors"});
+        editBean.newFavouritePost(t1);
 
-        editBean.addTags(t1);
-        editBean.removeTags(t2);
+    }
 
+    private void demoPostEdits(){
+
+        PostEditDTO p1 = new PostEditDTO();
+        p1.setEditPostID(2);
+        p1.setNewTags(new String[]{"feline", "hat"});
+        p1.setFavouriteEditUserID(1);
+        p1.setScoreIncrement(1);
+
+        PostEditDTO p2 = new PostEditDTO();
+        p2.setEditPostID(1);
+        p2.setTagsToRemove(new String[]{"canine", "outdoors"});
+        p2.setDescriptionEdit("Edited description");
+        p2.setFavouriteEditUserID(3);
+
+        editBean.addTags(p1);
+        editBean.removeTags(p2);
+
+        editBean.newFavouritePost(p2);
+        editBean.removeFavouritePost(p1);
+
+        editBean.editPostDescription(p2);
+        editBean.editPostScore(p1);
+    }
+
+    private void demoTagEdits(){
+
+        TagEditDTO t1 = new TagEditDTO();
+        t1.setId("window");
+        t1.setDescription("Edited description");
+        t1.setType("artist");
+
+        editBean.editTagDescription(t1);
+        editBean.editTagType(t1);
+
+    }
+
+    private void demoUserEdits(){
+
+        UserEditDTO u1 = new UserEditDTO();
+        u1.setId(3);
+        u1.setNewUsername("Asistent");
+        u1.setNewEmail("asistent@gmail.com");
+
+        editBean.editUserUsername(u1);
+        editBean.editUserEmail(u1);
+    }
+
+    private void demoDeleteTag(){
+
+        TagDeleteDTO t1 = new TagDeleteDTO();
+        t1.setId("canine");
+
+        deleteBean.deleteTag(t1);
+
+    }
+
+    private void demoDeletePost(){
+
+        PostDeleteDTO p1 = new PostDeleteDTO();
+        p1.setPostID(1);
+
+        deleteBean.deletePost(p1);
+
+    }
+
+    private void demoDeleteUser(){
+
+        UserDeleteDTO u1 = new UserDeleteDTO();
+        u1.setToDeleteID(1);
+
+        deleteBean.deleteUser(u1);
     }
 
 }
