@@ -1,7 +1,7 @@
 package si.fri.paw.servlet;
 
-import si.fir.paw.utility.beans.CreationBean;
-import si.fir.paw.utility.dtos.UserCreationDTO;
+import si.fir.paw.utility.beans.CreateBean;
+import si.fir.paw.utility.dtos.create.UserCreateDTO;
 
 import javax.inject.Inject;
 import javax.servlet.ServletException;
@@ -20,7 +20,7 @@ public class UserServlet extends HttpServlet {
     private static final Logger log = Logger.getLogger(JPAServlet.class.getName());
 
     @Inject
-    private CreationBean creationBean;
+    private CreateBean createBean;
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -28,11 +28,11 @@ public class UserServlet extends HttpServlet {
         String username = req.getParameter("username");
         String email = req.getParameter("email");
 
-        UserCreationDTO udto = new UserCreationDTO();
+        UserCreateDTO udto = new UserCreateDTO();
         udto.setUsername(username);
         udto.setEmail(email);
 
-        creationBean.createNewUser(udto);
+        createBean.createNewUser(udto);
 
         resp.sendRedirect("servlet");
     }

@@ -1,9 +1,10 @@
-package si.fir.paw.utility.dtos;
+package si.fir.paw.utility.dtos.create;
 
 import javax.servlet.http.Part;
+import java.io.File;
 import java.io.Serializable;
 
-public class PostCreationDTO implements Serializable {
+public class PostCreateDTO implements Serializable {
 
     private String description;
 
@@ -13,9 +14,9 @@ public class PostCreationDTO implements Serializable {
 
     private String[] tagNames;
 
-    private Part filePart;
+    private File file;
 
-    public PostCreationDTO() {
+    public PostCreateDTO() {
     }
 
     public String getDescription() {
@@ -50,11 +51,11 @@ public class PostCreationDTO implements Serializable {
         this.tagNames = tagNames;
     }
 
-    public Part getFilePart() {
-        return filePart;
+    public File getFile() {
+        return file;
     }
 
-    public void setFilePart(Part filePart) {
-        this.filePart = filePart;
+    public void setFile(File file) {
+        this.file = file;
     }
 }

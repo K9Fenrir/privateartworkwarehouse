@@ -1,8 +1,6 @@
 package si.fri.paw.servlet;
 
-import si.fir.paw.utility.beans.SearchBean;
-import si.fir.paw.utility.beans.UserBean;
-import si.fri.paw.entities.User;
+import si.fir.paw.utility.beans.ReadBean;
 
 import javax.inject.Inject;
 import javax.servlet.ServletException;
@@ -22,14 +20,14 @@ public class SearchServlet extends HttpServlet {
     private static final Logger log = Logger.getLogger(SearchServlet.class.getName());
 
     @Inject
-    private SearchBean searchBean;
+    private ReadBean readBean;
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
         String tags = req.getParameter("param");
 
-        searchBean.getPostsByTags(tags.split(" "));
+        readBean.getPostsByTags(tags.split(" "));
 
         resp.setContentType("text/html");
         PrintWriter printWriter = resp.getWriter();

@@ -1,8 +1,8 @@
-package si.fir.paw.utility.dtos;
+package si.fir.paw.utility.dtos.update;
 
 import java.io.Serializable;
 
-public class UserEditDTO implements Serializable {
+public class UserUpdateDTO implements Serializable {
 
     private int id;
 
@@ -10,11 +10,13 @@ public class UserEditDTO implements Serializable {
 
     private String newEmail;
 
+    private boolean adminStatus;
+
     private String newPassword1;
 
     private String newPassword2;
 
-    public UserEditDTO(){
+    public UserUpdateDTO(){
     }
 
     public int getId() {
@@ -39,6 +41,14 @@ public class UserEditDTO implements Serializable {
 
     public void setNewEmail(String newEmail) {
         this.newEmail = newEmail;
+    }
+
+    public boolean isAdmin() {
+        return adminStatus;
+    }
+
+    public void setAdminStatus(boolean adminStatus) {
+        this.adminStatus = adminStatus;
     }
 
     public String getNewPassword1() {

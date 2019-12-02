@@ -1,7 +1,7 @@
 package si.fri.paw.servlet;
 
-import si.fir.paw.utility.beans.CreationBean;
-import si.fir.paw.utility.dtos.PostCreationDTO;
+import si.fir.paw.utility.beans.CreateBean;
+import si.fir.paw.utility.dtos.create.PostCreateDTO;
 
 import javax.inject.Inject;
 import javax.servlet.ServletException;
@@ -21,7 +21,7 @@ public class UploadServlet extends HttpServlet {
     private static final Logger log = Logger.getLogger(JPAServlet.class.getName());
 
     @Inject
-    private CreationBean creationBean;
+    private CreateBean createBean;
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -31,15 +31,15 @@ public class UploadServlet extends HttpServlet {
         final Part filePart = req.getPart("file");
         final String fileName = getFileName(filePart);
 
-        PostCreationDTO pdto = new PostCreationDTO();
+        PostCreateDTO pdto = new PostCreateDTO();
 
         pdto.setAuthorID(1);
         pdto.setDescription(description);
         pdto.setRating("safe");
         pdto.setTagNames(tags.split(" "));
-        pdto.setFilePart(filePart);
+//        pdto.setFilePart(filePart);
 
-        creationBean.createNewPost(pdto);
+        createBean.createNewPost(pdto);
 
         resp.sendRedirect("servlet");
 

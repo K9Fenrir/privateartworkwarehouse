@@ -1,8 +1,8 @@
 package si.fir.paw.utility.beans;
 
-import si.fir.paw.utility.dtos.PostDeleteDTO;
-import si.fir.paw.utility.dtos.TagDeleteDTO;
-import si.fir.paw.utility.dtos.UserDeleteDTO;
+import si.fir.paw.utility.dtos.delete.PostDeleteDTO;
+import si.fir.paw.utility.dtos.delete.TagDeleteDTO;
+import si.fir.paw.utility.dtos.delete.UserDeleteDTO;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;

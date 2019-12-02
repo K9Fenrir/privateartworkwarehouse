@@ -1,5 +1,11 @@
 package si.fir.paw.utility.beans;
 
+import si.fir.paw.utility.dtos.read.PostDTO;
+import si.fir.paw.utility.dtos.read.TagDTO;
+import si.fir.paw.utility.dtos.read.UserDTO;
+import si.fir.paw.utility.mappers.PostMapper;
+import si.fir.paw.utility.mappers.TagMapper;
+import si.fir.paw.utility.mappers.UserMapper;
 import si.fri.paw.entities.Post;
 import si.fri.paw.entities.Tag;
 import si.fri.paw.entities.User;
@@ -12,9 +18,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 @ApplicationScoped
-public class SearchBean {
+public class ReadBean {
 
     @Inject
     PostBean postBean;
@@ -25,7 +32,7 @@ public class SearchBean {
     @Inject
     UserBean userBean;
 
-    private static final Logger log = Logger.getLogger(SearchBean.class.getName());
+    private static final Logger log = Logger.getLogger(ReadBean.class.getName());
 
     public List<Post> getAllPosts(){
         List<Post> posts = postBean.getAllPosts();
@@ -33,13 +40,13 @@ public class SearchBean {
         return posts;
     }
 
-    public Post getPostByID(int id){
+    public PostDTO getPostById(int id){
         Post post = postBean.getByID(id);
 
-        return post;
+        return PostMapper.postToDTO(post);
     }
 
-    public List<Post> getPostsByTags(String[] tagNames) throws PersistenceException {
+    public List<PostDTO> getPostsByTags(String[] tagNames) throws PersistenceException {
 
         List<Tag> tagList = new LinkedList<>();
         for (String tagName : tagNames){
@@ -66,28 +73,43 @@ public class SearchBean {
             log.info("Post ID: " + post.getId());
         }
 
-        List<Post> postList = new LinkedList<>();
-        postList.addAll(filteredPosts);
+        List<PostDTO> postList = filteredPosts.stream().map(x -> PostMapper.minimalPostToDto(x)).collect(Collectors.toList());
 
         return postList;
     }
 
-    public List<Tag> getAllTags(){
+    public List<TagDTO> getAllTags(){
         List<Tag> tags = tagBean.getAllTags();
+        List<TagDTO> tagDTOs = new LinkedList<>();
 
-        return tags;
+        for (Tag tag : tags){
+            tagDTOs.add(TagMapper.minimalTagToDTO(tag));
+        }
+
+        return tagDTOs;
     }
 
-    public Tag getTagByName(String name){
+    public TagDTO getTagByName(String name){
         Tag tag = tagBean.getById(name);
 
-        return tag;
+        return TagMapper.tagToDTO(tag);
     }
 
-    public List<User> getAllUsers(){
+    public List<UserDTO> getAllUsers(){
         List<User> users = userBean.getAllUsers();
+        List<UserDTO> userDTOs = new LinkedList<>();
 
-        return users;
+        for (User user : users) {
+            userDTOs.add(UserMapper.userToDTO(user));
+        }
+
+        return userDTOs;
+    }
+
+    public UserDTO getUserByID(int id){
+        User user = userBean.getUserByID(id);
+
+        return UserMapper.userToDTO(user);
     }
 
     public List<User> getUserByUsername(String username){

@@ -1,7 +1,15 @@
 package si.fri.paw.servlet;
 
 import si.fir.paw.utility.beans.*;
-import si.fir.paw.utility.dtos.*;
+import si.fir.paw.utility.dtos.create.PostCreateDTO;
+import si.fir.paw.utility.dtos.delete.PostDeleteDTO;
+import si.fir.paw.utility.dtos.delete.TagDeleteDTO;
+import si.fir.paw.utility.dtos.delete.UserDeleteDTO;
+import si.fir.paw.utility.dtos.read.PostDTO;
+import si.fir.paw.utility.dtos.read.TagDTO;
+import si.fir.paw.utility.dtos.update.PostUpdateDTO;
+import si.fir.paw.utility.dtos.update.TagUpdateDTO;
+import si.fir.paw.utility.dtos.update.UserUpdateDTO;
 import si.fri.paw.entities.Post;
 import si.fri.paw.entities.Tag;
 import si.fri.paw.entities.User;
@@ -24,13 +32,13 @@ public class JPAServlet extends HttpServlet {
     private static final Logger log = Logger.getLogger(JPAServlet.class.getName());
 
     @Inject
-    private CreationBean creationBean;
+    private CreateBean createBean;
 
     @Inject
-    private SearchBean searchBean;
+    private ReadBean readBean;
 
     @Inject
-    private EditBean editBean;
+    private UpdateBean updateBean;
 
     @Inject DeleteBean deleteBean;
 
@@ -97,17 +105,15 @@ public class JPAServlet extends HttpServlet {
         printWriter.print("Tags:");
         printWriter.print("</h3>");
 
-        List<Tag> tags = searchBean.getAllTags();
+        List<TagDTO> tags = readBean.getAllTags();
 
-        for (Tag tag : tags){
-            log.info("Name: " + tag.getId() + ", description: " + tag.getDescription());
+        for (TagDTO tag : tags){
+            log.info("Name: " + tag.getName() + ", description: " + tag.getDescription());
             printWriter.print("" +
                     "<p>" +
-                    "Name: " + tag.getId() + ", Description: " + tag.getDescription() +
-                    ", Posts:");
-            for (Post p : tag.getTaggedPosts()){
-                printWriter.print(" " + p.getId());
-            }
+                    "Name: " + tag.getName() + ", Description: " + tag.getDescription() +
+                    "");
+
             printWriter.print("</p>");
         }
 
@@ -126,7 +132,7 @@ public class JPAServlet extends HttpServlet {
         printWriter.print("Posts:");
         printWriter.print("</h3>");
 
-        List<Post> posts = searchBean.getAllPosts();
+        List<Post> posts = readBean.getAllPosts();
 
         for (Post post : posts){
             log.info("ID: " + post.getId() + ", description: " + post.getDescription());
@@ -190,7 +196,7 @@ public class JPAServlet extends HttpServlet {
     }
 
     private void printSelectedUser(String username, PrintWriter printWriter){
-        List<User> users = searchBean.getUserByUsername(username);
+        List<User> users = readBean.getUserByUsername(username);
         printWriter.print("SELECTED USER: " + username);
         for (User user : users){
             log.info("Username: " + user.getUsername() + ", email: " + user.getEmail());
@@ -203,7 +209,7 @@ public class JPAServlet extends HttpServlet {
 
     private void addTestPosts(){
 
-        PostCreationDTO p1 = new PostCreationDTO();
+        PostCreateDTO p1 = new PostCreateDTO();
 
         p1.setDescription("Test description for post 1");
         p1.setTagNames(new String[]{"F-R95", "canine", "outdoors"});
@@ -211,12 +217,12 @@ public class JPAServlet extends HttpServlet {
         p1.setAuthorID(1);
 
         try {
-            creationBean.createNewPost(p1);
+            createBean.createNewPost(p1);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        PostCreationDTO p2 = new PostCreationDTO();
+        PostCreateDTO p2 = new PostCreateDTO();
 
         p2.setDescription("Test description for post 2");
         p2.setTagNames(new String[]{"Hioshiru", "standing", "human"});
@@ -224,64 +230,63 @@ public class JPAServlet extends HttpServlet {
         p2.setAuthorID(2);
 
         try {
-            creationBean.createNewPost(p2);
+            createBean.createNewPost(p2);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        PostEditDTO t1 = new PostEditDTO();
+        PostUpdateDTO t1 = new PostUpdateDTO();
         t1.setEditPostID(2);
         t1.setFavouriteEditUserID(1);
 
-        editBean.newFavouritePost(t1);
+        updateBean.newFavouritePost(t1);
 
     }
 
     private void demoPostEdits(){
 
-        PostEditDTO p1 = new PostEditDTO();
+        PostUpdateDTO p1 = new PostUpdateDTO();
         p1.setEditPostID(2);
         p1.setNewTags(new String[]{"feline", "hat"});
         p1.setFavouriteEditUserID(1);
         p1.setScoreIncrement(1);
 
-        PostEditDTO p2 = new PostEditDTO();
+        PostUpdateDTO p2 = new PostUpdateDTO();
         p2.setEditPostID(1);
         p2.setTagsToRemove(new String[]{"canine", "outdoors"});
         p2.setDescriptionEdit("Edited description");
         p2.setFavouriteEditUserID(3);
 
-        editBean.addTags(p1);
-        editBean.removeTags(p2);
+        updateBean.addTags(p1);
+        updateBean.removeTags(p2);
 
-        editBean.newFavouritePost(p2);
-        editBean.removeFavouritePost(p1);
+        updateBean.newFavouritePost(p2);
+        updateBean.removeFavouritePost(p1);
 
-        editBean.editPostDescription(p2);
-        editBean.editPostScore(p1);
+        updateBean.updatePostDescription(p2);
+        updateBean.updatePostScore(p1);
     }
 
     private void demoTagEdits(){
 
-        TagEditDTO t1 = new TagEditDTO();
+        TagUpdateDTO t1 = new TagUpdateDTO();
         t1.setId("window");
         t1.setDescription("Edited description");
         t1.setType("artist");
 
-        editBean.editTagDescription(t1);
-        editBean.editTagType(t1);
+        updateBean.updateTag(t1);
 
     }
 
     private void demoUserEdits(){
 
-        UserEditDTO u1 = new UserEditDTO();
+        UserUpdateDTO u1 = new UserUpdateDTO();
         u1.setId(3);
         u1.setNewUsername("Asistent");
         u1.setNewEmail("asistent@gmail.com");
 
-        editBean.editUserUsername(u1);
-        editBean.editUserEmail(u1);
+        updateBean.updateUserUsername(u1);
+        updateBean.updateUserEmail(u1);
     }
 
     private void demoDeleteTag(){

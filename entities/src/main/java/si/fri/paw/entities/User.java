@@ -9,6 +9,8 @@ import java.util.Set;
                 @NamedQuery(name = "User.getAll", query = "SELECT u FROM users u"),
                 @NamedQuery(name = "User.getByUsername", query = "SELECT u FROM users u WHERE u.username = :username"),
                 @NamedQuery(name = "User.getByEmail", query = "SELECT u FROM users u WHERE u.email = :email"),
+                @NamedQuery(name = "User.getByID", query = "SELECT u FROM users u WHERE u.id = :id"),
+
         })
 
 public class User {
@@ -21,10 +23,12 @@ public class User {
 
         private String email;
 
-        @OneToMany(mappedBy = "author", cascade = CascadeType.PERSIST)
+        private boolean admin;
+
+        @OneToMany(mappedBy = "author")
         private Set<Post> uploads;
 
-        @ManyToMany(mappedBy = "favouritedBy", cascade = CascadeType.PERSIST)
+        @ManyToMany(mappedBy = "favouritedBy")
         private Set<Post> favourites;
 
         public Integer getId() {
@@ -49,6 +53,14 @@ public class User {
 
         public void setEmail(String email) {
                 this.email = email;
+        }
+
+        public boolean getAdmin() {
+                return admin;
+        }
+
+        public void setAdmin(boolean admin) {
+                this.admin = admin;
         }
 
         public Set<Post> getUploads() {

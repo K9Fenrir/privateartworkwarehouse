@@ -24,7 +24,7 @@ public class Post {
     @ManyToMany
     private Set<Tag> postTags;
 
-    @ManyToMany(cascade = CascadeType.PERSIST)
+    @ManyToMany
     private Set<User> favouritedBy;
 
     @ManyToOne

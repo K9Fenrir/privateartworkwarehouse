@@ -1,6 +1,6 @@
-package si.fir.paw.utility.dtos;
+package si.fir.paw.utility.dtos.update;
 
-public class TagEditDTO {
+public class TagUpdateDTO {
 
     private String id;
 
@@ -8,7 +8,7 @@ public class TagEditDTO {
 
     private String type;
 
-    public TagEditDTO(){
+    public TagUpdateDTO(){
     }
 
     public String getId() {

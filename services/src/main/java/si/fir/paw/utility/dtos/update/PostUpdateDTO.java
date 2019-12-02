@@ -1,8 +1,8 @@
-package si.fir.paw.utility.dtos;
+package si.fir.paw.utility.dtos.update;
 
 import java.io.Serializable;
 
-public class PostEditDTO implements Serializable {
+public class PostUpdateDTO implements Serializable {
 
     private int EditPostID;
 
@@ -18,7 +18,7 @@ public class PostEditDTO implements Serializable {
 
     private int scoreIncrement;
 
-    public PostEditDTO(){
+    public PostUpdateDTO(){
     }
 
     public int getEditPostID() {

@@ -1,8 +1,14 @@
 package si.fir.paw.utility.beans;
 
-import si.fir.paw.utility.dtos.PostEditDTO;
-import si.fir.paw.utility.dtos.TagEditDTO;
-import si.fir.paw.utility.dtos.UserEditDTO;
+import si.fir.paw.utility.dtos.read.PostDTO;
+import si.fir.paw.utility.dtos.read.TagDTO;
+import si.fir.paw.utility.dtos.update.PostUpdateDTO;
+import si.fir.paw.utility.dtos.update.TagUpdateDTO;
+import si.fir.paw.utility.dtos.read.UserDTO;
+import si.fir.paw.utility.dtos.update.UserUpdateDTO;
+import si.fir.paw.utility.mappers.PostMapper;
+import si.fir.paw.utility.mappers.TagMapper;
+import si.fir.paw.utility.mappers.UserMapper;
 import si.fri.paw.entities.Post;
 import si.fri.paw.entities.Tag;
 import si.fri.paw.entities.User;
@@ -16,7 +22,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @ApplicationScoped
-public class EditBean {
+public class UpdateBean {
 
     @Inject
     PostBean postBean;
@@ -27,61 +33,69 @@ public class EditBean {
     @Inject
     UserBean userBean;
 
-    private static final Logger log = Logger.getLogger(EditBean.class.getName());
+    private static final Logger log = Logger.getLogger(UpdateBean.class.getName());
 
-    public Post newFavouritePost(PostEditDTO pdto){
+    public PostDTO newFavouritePost(PostUpdateDTO pdto){
         Post editedPost = postBean.addNewFavourite(pdto.getEditPostID(), pdto.getFavouriteEditUserID());
 
         if (editedPost != null){
             log.info("Added new favourite: Post " + pdto.getEditPostID() + " to User " + pdto.getFavouriteEditUserID());
+
+            return PostMapper.postToDTO(editedPost);
         }
         else{
             log.info("Failed to add favourite to post " + pdto.getEditPostID() + ": post or user does not exist");
         }
 
-        return editedPost;
+        return null;
     }
 
-    public Post removeFavouritePost(PostEditDTO pdto){
+    public PostDTO removeFavouritePost(PostUpdateDTO pdto){
         Post editedPost = postBean.removeFavourite(pdto.getEditPostID(), pdto.getFavouriteEditUserID());
 
         if (editedPost != null) {
             log.info("Removed favourite: Post " + editedPost.getId() + " from User " + pdto.getFavouriteEditUserID());
+
+            return PostMapper.postToDTO(editedPost);
         }
         else{
             log.info("Failed to remove favourite from post " + pdto.getEditPostID() + ": post or user does not exist");
         }
 
-        return editedPost;
+        return null;
     }
 
-    public Post addTags(PostEditDTO pdto){
+    public PostDTO addTags(PostUpdateDTO pdto){
         Post editedPost = postBean.addTags(pdto.getEditPostID(), pdto.getNewTags());
 
         if (editedPost != null) {
             log.info("Added tags: Tags " + tagArrayToString(pdto.getNewTags()) + " to post " + editedPost.getId());
+
+            return PostMapper.postToDTO(editedPost);
         }
         else{
             log.info("Failed to add tags to post " + pdto.getEditPostID() + ": post does not exist");
         }
 
-        return editedPost;
+        return null;
     }
 
-    public Post removeTags(PostEditDTO pdto){
+    public PostDTO removeTags(PostUpdateDTO pdto){
         Post editedPost = postBean.removeTags(pdto.getEditPostID(), pdto.getTagsToRemove());
 
         if (editedPost != null) {
             log.info("Removed tags: Tags " + tagArrayToString(pdto.getTagsToRemove()) + " for post " + editedPost.getId());
+
+            return PostMapper.postToDTO(editedPost);
         }
         else{
             log.info("Failed to remove tags from post " + pdto.getEditPostID() + ": post does not exist");
         }
 
-        return editedPost;
+        return null;
     }
 
-    public Post editPostDescription(PostEditDTO pdto){
+    public PostDTO updatePostDescription(PostUpdateDTO pdto){
         Post editedPost = postBean.editDescription(pdto.getEditPostID(), pdto.getDescriptionEdit());
 
         if (editedPost != null) {
@@ -91,10 +105,10 @@ public class EditBean {
             log.info("Failed to edit description of post " + pdto.getEditPostID());
         }
 
-        return editedPost;
+        return PostMapper.postToDTO(editedPost);
     }
 
-    public Post editPostScore(PostEditDTO pdto){
+    public PostDTO updatePostScore(PostUpdateDTO pdto){
         Post editedPost = postBean.incrementScore(pdto.getEditPostID(), pdto.getScoreIncrement());
 
         if (editedPost != null) {
@@ -104,10 +118,10 @@ public class EditBean {
            log.info("Failed to edit score of post: " + pdto.getEditPostID() + ": post does not exist");
         }
 
-        return editedPost;
+        return PostMapper.postToDTO(editedPost);
     }
 
-    public Post editPostRating(PostEditDTO pdto){
+    public PostDTO updatePostRating(PostUpdateDTO pdto){
         if (validatePostRating(pdto.getNewRating())) {
             Post editedPost = postBean.editRating(pdto.getEditPostID(), pdto.getNewRating());
 
@@ -115,7 +129,7 @@ public class EditBean {
                 log.info("Edited rating on post " + editedPost.getId() + " to new rating '" + editedPost.getRating() + "'");
             }
 
-            return editedPost;
+            return PostMapper.postToDTO(editedPost);
         }
         else{
             log.info("Failed to edit rating of post " + pdto.getEditPostID() + ": invalid rating '" + pdto.getNewRating() + "'");
@@ -124,51 +138,38 @@ public class EditBean {
         return null;
     }
 
-    public Tag editTagDescription(TagEditDTO tdto){
-        Tag editedTag = tagBean.editTagDescription(tdto.getId(), tdto.getDescription());
-
-        if (editedTag != null){
-            log.info("Edited description of tag '" + editedTag.getId() + "'");
-        }
-        else{
-            log.info("Failed to edit description of tag '" + tdto.getId() + "': tag does not exist");
-        }
-
-        return editedTag;
-    }
-
-    public Tag editTagType(TagEditDTO tdto){
+    public TagDTO updateTag(TagUpdateDTO tdto){
         if (validateTagType(tdto.getType())) {
-            Tag editedTag = tagBean.editTagType(tdto.getId(), tdto.getType().toLowerCase());
+            Tag editedTag = tagBean.editTag(tdto.getId(), tdto.getDescription(), tdto.getType().toLowerCase());
 
             if (editedTag != null) {
-                log.info("Edited type of tag '" + editedTag.getId() + "'");
+                log.info("Edited tag '" + editedTag.getId() + "'");
+
+                return TagMapper.tagToDTO(editedTag);
             }
             else{
-                log.info("Failed to edit type of tag '" + tdto.getId() + "': tag does not exist");
+                log.info("Failed to edit tag '" + tdto.getId() + "': tag does not exist");
             }
-
-            return editedTag;
         }
         else{
-            log.info("Failed to edit type of tag '" + tdto.getId() + "': invalid tag type '" + tdto.getType() + "'");
+            log.info("Failed to edit tag '" + tdto.getId() + "': invalid tag type '" + tdto.getType() + "'");
         }
 
         return  null;
     }
 
-    public User editUserUsername(UserEditDTO udto){
+    public UserDTO updateUserUsername(UserUpdateDTO udto){
         if (validateUsername(udto.getNewUsername())){
-            User editedUser = userBean.editUserUsername(udto.getId(), udto.getNewUsername());
+            User editedUser = userBean.updateUserUsername(udto.getId(), udto.getNewUsername());
 
             if (editedUser != null){
                 log.info("Edited username of user " + editedUser.getId() + "to '" + editedUser.getUsername() + "'");
+
+                return UserMapper.userToDTO(editedUser);
             }
             else{
                 log.info("Failed to edit username of user " + udto.getId() + ": user does not exist");
             }
-
-            return editedUser;
         }
         else{
             log.info("Failed to edit username of user " + udto.getId() + ": invalid new username");
@@ -177,9 +178,9 @@ public class EditBean {
         return null;
     }
 
-    public User editUserEmail(UserEditDTO udto){
+    public UserDTO updateUserEmail(UserUpdateDTO udto){
         if (validateEmail(udto.getNewEmail())){
-            User editedUser = userBean.editUserEmail(udto.getId(), udto.getNewEmail());
+            User editedUser = userBean.updateUserEmail(udto.getId(), udto.getNewEmail());
 
             if (editedUser != null){
                 log.info("Edited email of user " + editedUser.getId() + "to '" + editedUser.getEmail() + "'");
@@ -188,10 +189,26 @@ public class EditBean {
                 log.info("Failed to edit email of user " + udto.getId() + ": user does not exist");
             }
 
-            return editedUser;
+            return UserMapper.userToDTO(editedUser);
         }
         else{
             log.info("Failed to edit email of user " + udto.getId() + ": invalid new email");
+        }
+
+        return null;
+    }
+
+    public UserDTO updateUserAdminStatus(UserUpdateDTO udto){
+        User editedUser = userBean.updateUserAdminStatus(udto.getId(), udto.isAdmin());
+
+        if (editedUser != null){
+            log.info("Edited admin status of user " + editedUser.getId() + "to '" + udto.isAdmin() + "'");
+
+            return UserMapper.userToDTO(editedUser);
+
+        }
+        else{
+            log.info("Failed to edit email of user " + udto.getId() + ": user does not exist");
         }
 
         return null;

@@ -1,21 +1,31 @@
 package si.fir.paw.utility.beans;
 
-import si.fir.paw.utility.dtos.*;
+import si.fir.paw.utility.dtos.create.PostCreateDTO;
+import si.fir.paw.utility.dtos.create.TagCreateDTO;
+import si.fir.paw.utility.dtos.create.UserCreateDTO;
+import si.fir.paw.utility.dtos.read.PostDTO;
+import si.fir.paw.utility.dtos.read.TagDTO;
+import si.fir.paw.utility.dtos.read.UserDTO;
+import si.fir.paw.utility.mappers.PostMapper;
+import si.fir.paw.utility.mappers.TagMapper;
+import si.fir.paw.utility.mappers.UserMapper;
 import si.fri.paw.entities.Post;
 import si.fri.paw.entities.Tag;
 import si.fri.paw.entities.User;
 
+import javax.activation.MimeType;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.servlet.http.Part;
 import java.io.*;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @ApplicationScoped
-public class CreationBean {
+public class CreateBean {
 
     @Inject
     PostBean postBean;
@@ -26,48 +36,64 @@ public class CreationBean {
     @Inject
     UserBean userBean;
 
-    private static final Logger log = Logger.getLogger(CreationBean.class.getName());
+    private static final Logger log = Logger.getLogger(CreateBean.class.getName());
 
-    public Post createNewPost(PostCreationDTO pdto) throws IOException{
+    public PostDTO createNewPost(PostCreateDTO pdto) throws IOException{
         if (validatePostRating(pdto.getRating())) {
             Post newPost = postBean.addPost(pdto.getTagNames(), pdto.getDescription(), pdto.getRating().toLowerCase(), pdto.getAuthorID());
 
-            if (pdto.getFilePart() != null){
-                saveImage(pdto.getFilePart(), newPost.getId());
+            if (pdto.getFile() != null){
+
+                saveImage(pdto.getFile(), newPost.getId());
+
             }
 
-            return newPost;
+            return PostMapper.postToDTO(newPost);
         }
 
         return null;
     }
 
-    public User createNewUser(UserCreationDTO udto){
-        User newUser = null;
+    public UserDTO createNewUser(UserCreateDTO udto){
+
         if (validateEmail(udto.getEmail()) && validateUsername(udto.getUsername())){
-            newUser = userBean.addNewUser(udto.getUsername(), udto.getEmail());
+            User newUser = userBean.addNewUser(udto.getUsername(), udto.getEmail());
 
             log.info("New user was added: " + newUser.getUsername());
+
+            return UserMapper.userToDTO(newUser);
         }
         else{
             log.info("User creation failed: invalid parameters");
         }
 
-        return newUser;
+        return null;
     }
 
-    public Tag createNewTag(TagCreationDTO tdto){
-        Tag newTag = null;
+    public TagDTO createNewTag(TagCreateDTO tdto){
         if (validateTagName(tdto.getName()) && validateTagType(tdto.getType())){
-            newTag = tagBean.addNewTag(tdto.getName().toLowerCase(), tdto.getDescription(), tdto.getType().toLowerCase());
+            Tag newTag = tagBean.addNewTag(tdto.getName().toLowerCase(), tdto.getDescription(), tdto.getType().toLowerCase());
 
             log.info("New Tag was added: " + newTag.getId());
+
+            return TagMapper.tagToDTO(newTag);
         }
         else{
             log.info("Tag creation failed: invalid parameters");
         }
 
-        return newTag;
+        return null;
+    }
+
+    private void saveImage(File inputFile, int postId) throws IOException{
+
+        String fileType = Files.probeContentType(inputFile.toPath());
+        log.info(fileType);
+
+        String fileName = System.getProperty("user.dir") + "/images/" + postId + fileType;
+
+
+
     }
 
     // Saves uploaded image as .jpg in /images

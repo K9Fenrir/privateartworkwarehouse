@@ -26,8 +26,7 @@ public class TagBean {
         return em.createNamedQuery("Tag.getAll", Tag.class).getResultList();
     }
 
-    public Tag getById(String id){
-        return em.find(Tag.class, id);
+    public Tag getById(String id){return em.find(Tag.class, id);
     }
 
     @Transactional
@@ -45,31 +44,21 @@ public class TagBean {
     }
 
     @Transactional
-    public Tag editTagDescription(String id, String description){
+    public Tag editTag(String id, String description, String type){
 
         Tag tag = em.find(Tag.class, id);
 
         if (tag != null){
-            tag.setDescription(description);
+            if (description != null){
+                tag.setDescription(description);
+            }
+            if (type != null){
+                tag.setType(type);
+            }
 
-            em.merge(tag);
-            em.flush();
+            tag = em.merge(tag);
         }
 
-        return tag;
-    }
-
-    @Transactional
-    public Tag editTagType(String id, String type){
-
-        Tag tag = em.find(Tag.class, id);
-
-        if (tag != null){
-            tag.setType(type);
-
-            em.merge(tag);
-            em.flush();
-        }
         return tag;
     }
 

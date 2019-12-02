@@ -1,4 +1,4 @@
-package si.fir.paw.utility.dtos;
+package si.fir.paw.utility.dtos.delete;
 
 import java.io.Serializable;
 

@@ -1,14 +1,14 @@
-package si.fir.paw.utility.dtos;
+package si.fir.paw.utility.dtos.create;
 
 import java.io.Serializable;
 
-public class UserCreationDTO implements Serializable {
+public class UserCreateDTO implements Serializable {
 
     private String username;
 
     private String email;
 
-    public UserCreationDTO(){
+    public UserCreateDTO(){
     }
 
     public String getUsername() {

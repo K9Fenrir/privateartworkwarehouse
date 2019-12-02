@@ -1,8 +1,8 @@
-package si.fir.paw.utility.dtos;
+package si.fir.paw.utility.dtos.create;
 
 import java.io.Serializable;
 
-public class TagCreationDTO implements Serializable {
+public class TagCreateDTO implements Serializable {
 
     private String name;
 
@@ -10,7 +10,7 @@ public class TagCreationDTO implements Serializable {
 
     private String type;
 
-    public TagCreationDTO(){
+    public TagCreateDTO(){
     }
 
     public String getName() {

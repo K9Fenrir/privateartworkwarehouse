@@ -1,7 +1,7 @@
 package si.fri.paw.servlet;
 
-import si.fir.paw.utility.beans.CreationBean;
-import si.fir.paw.utility.dtos.TagCreationDTO;
+import si.fir.paw.utility.beans.CreateBean;
+import si.fir.paw.utility.dtos.create.TagCreateDTO;
 
 import javax.inject.Inject;
 import javax.servlet.ServletException;
@@ -20,7 +20,7 @@ public class TagServlet extends HttpServlet {
     private static final Logger log = Logger.getLogger(JPAServlet.class.getName());
 
     @Inject
-    private CreationBean creationBean;
+    private CreateBean createBean;
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -29,12 +29,12 @@ public class TagServlet extends HttpServlet {
         String description = req.getParameter("description");
         String type = req.getParameter("type");
 
-        TagCreationDTO tdto = new TagCreationDTO();
+        TagCreateDTO tdto = new TagCreateDTO();
         tdto.setName(name);
         tdto.setDescription(description);
         tdto.setType(type);
 
-        creationBean.createNewTag(tdto);
+        createBean.createNewTag(tdto);
 
         resp.sendRedirect("servlet");
     }

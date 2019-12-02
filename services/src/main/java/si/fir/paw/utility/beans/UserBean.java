@@ -13,6 +13,7 @@ import javax.persistence.criteria.ParameterExpression;
 import javax.persistence.criteria.Root;
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.UUID;
 import java.util.logging.Logger;
 
 @ApplicationScoped
@@ -21,10 +22,16 @@ public class UserBean {
     @PersistenceContext(unitName = "paw-jpa")
     private EntityManager em;
 
+    private UUID uuid = UUID.randomUUID();
+
     private static final Logger log = Logger.getLogger(UserBean.class.getName());
 
     public List<User> getAllUsers() {
         return em.createNamedQuery("User.getAll").getResultList();
+    }
+
+    public User getUserByID(int id){
+        return em.createNamedQuery("User.getByID", User.class).setParameter("id", id).getSingleResult();
     }
 
     public List<User> getAllUsersCrit(){
@@ -34,6 +41,8 @@ public class UserBean {
         CriteriaQuery cq = cb.createQuery();
         Root u = cq.from(User.class);
         Query query = em.createQuery(cq);
+
+        log.info("UserBean UUID: " + uuid);
 
         return query.getResultList();
     }
@@ -59,6 +68,7 @@ public class UserBean {
         User newUser = new User();
         newUser.setUsername(username);
         newUser.setEmail(email);
+        newUser.setAdmin(false);
 
         em.persist(newUser);
         em.flush();
@@ -67,7 +77,7 @@ public class UserBean {
     }
 
     @Transactional
-    public User editUserUsername(int id, String username){
+    public User updateUserUsername(int id, String username){
 
         User user = em.find(User.class, id);
 
@@ -81,14 +91,28 @@ public class UserBean {
     }
 
     @Transactional
-    public User editUserEmail(int id, String email){
+    public User updateUserEmail(int id, String email){
 
         User user = em.find(User.class, id);
 
         if (user != null){
             user.setEmail(email);
 
-            em.merge(user);
+            user = em.merge(user);
+        }
+
+        return user;
+    }
+
+    @Transactional
+    public User updateUserAdminStatus(int id, boolean status){
+
+        User user = em.find(User.class, id);
+
+        if (user != null){
+            user.setAdmin(status);
+
+            user = em.merge(user);
         }
 
         return user;
