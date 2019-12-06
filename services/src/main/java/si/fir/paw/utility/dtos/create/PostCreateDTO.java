@@ -1,7 +1,6 @@
 package si.fir.paw.utility.dtos.create;
 
-import javax.servlet.http.Part;
-import java.io.File;
+import java.io.InputStream;
 import java.io.Serializable;
 
 public class PostCreateDTO implements Serializable {
@@ -14,7 +13,9 @@ public class PostCreateDTO implements Serializable {
 
     private String[] tagNames;
 
-    private File file;
+    private String fileExtension;
+
+    private InputStream fileInputStream;
 
     public PostCreateDTO() {
     }
@@ -51,11 +52,19 @@ public class PostCreateDTO implements Serializable {
         this.tagNames = tagNames;
     }
 
-    public File getFile() {
-        return file;
+    public String getFileExtension() {
+        return fileExtension;
     }
 
-    public void setFile(File file) {
-        this.file = file;
+    public void setFileExtension(String fileExtension) {
+        this.fileExtension = fileExtension;
+    }
+
+    public InputStream getFileInputStream() {
+        return fileInputStream;
+    }
+
+    public void setFileInputStream(InputStream fileInputStream) {
+        this.fileInputStream = fileInputStream;
     }
 }

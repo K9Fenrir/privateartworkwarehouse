@@ -1,5 +1,8 @@
 package si.fri.paw.api.v1.sources;
 
+import com.google.common.io.Files;
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
+import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.json.JSONException;
 import org.json.JSONObject;
 import si.fir.paw.utility.beans.CreateBean;
@@ -12,12 +15,10 @@ import si.fir.paw.utility.dtos.update.PostUpdateDTO;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.print.attribute.standard.Media;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -41,7 +42,7 @@ public class PostSource {
 
     private static final Logger log = Logger.getLogger(PostSource.class.getName());
 
-    /*
+
     @POST
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_JSON)
@@ -49,26 +50,33 @@ public class PostSource {
                                   @FormDataParam("description") String description,
                                   @FormDataParam("tagNames") String tagNames,
                                   @FormDataParam("rating") String rating,
-                                  @FormDataParam("file") File inputFile){
+                                  @FormDataParam("file") InputStream fileInputStream,
+                                  @FormDataParam("file") FormDataContentDisposition fileMetaData
+                                 ){
         try {
+
+            String fileExtension = Files.getFileExtension(fileMetaData.getFileName());
 
             PostCreateDTO pdto = new PostCreateDTO();
             pdto.setAuthorID(authorId);
+            pdto.setTagNames(tagNames.split(" "));
             pdto.setDescription(description);
             pdto.setRating(rating);
-            pdto.setFile(inputFile);
+            pdto.setFileExtension(fileExtension);
+            pdto.setFileInputStream(fileInputStream);
 
+
+            log.info("Creating new post.");
             PostDTO post = createBean.createNewPost(pdto);
 
             return Response.status(Response.Status.CREATED).entity(post).build();
         }
-        catch (IOException ioe){
-            log.warning("Error parsing json.");
-            return Response.status(Response.Status.BAD_REQUEST).entity(ioe).build();
+        catch (Exception e){
+            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
         }
 
     }
-    */
+
 
     @GET
     @Path("{id}")

@@ -58,7 +58,7 @@ public class PostBean {
         author.getUploads().add(newPost);
 
         em.persist(newPost);
-        em.flush();
+//        em.flush();
 
         return newPost;
 

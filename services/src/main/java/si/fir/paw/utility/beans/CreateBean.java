@@ -17,6 +17,7 @@ import javax.activation.MimeType;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.servlet.http.Part;
+import javax.ws.rs.WebApplicationException;
 import java.io.*;
 import java.nio.file.Files;
 import java.util.Arrays;
@@ -40,12 +41,15 @@ public class CreateBean {
 
     public PostDTO createNewPost(PostCreateDTO pdto) throws IOException{
         if (validatePostRating(pdto.getRating())) {
+
+            log.info("Validated rating.");
+
             Post newPost = postBean.addPost(pdto.getTagNames(), pdto.getDescription(), pdto.getRating().toLowerCase(), pdto.getAuthorID());
 
-            if (pdto.getFile() != null){
+            log.info("DB entry created.");
+            if (pdto.getFileInputStream() != null){
 
-                saveImage(pdto.getFile(), newPost.getId());
-
+                saveImage(pdto.getFileInputStream(), newPost.getId(), pdto.getFileExtension());
             }
 
             return PostMapper.postToDTO(newPost);
@@ -85,46 +89,22 @@ public class CreateBean {
         return null;
     }
 
-    private void saveImage(File inputFile, int postId) throws IOException{
-
-        String fileType = Files.probeContentType(inputFile.toPath());
-        log.info(fileType);
-
-        String fileName = System.getProperty("user.dir") + "/images/" + postId + fileType;
-
-
-
-    }
-
     // Saves uploaded image as .jpg in /images
-    private void saveImage(Part filePart, int postID) throws IOException{
-
-        OutputStream out = null;
-        InputStream filecontent = null;
-
+    private void saveImage(InputStream fileInputStream, int postID, String fileExtension) throws IOException{
         try {
-            out = new FileOutputStream(new File(System.getProperty("user.dir") + "/images" + File.separator
-                    + postID + ".jpg"));
-            filecontent = filePart.getInputStream();
 
             int read = 0;
-            final byte[] bytes = new byte[1024];
+            byte[] bytes = new byte[1024];
 
-            while ((read = filecontent.read(bytes)) != -1) {
+            OutputStream out = new FileOutputStream(new File(System.getProperty("user.dir") + "/images/" + postID + "." + fileExtension));
+            while ((read = fileInputStream.read(bytes)) != -1) {
                 out.write(bytes, 0, read);
             }
-            log.info("New file created at /images/" + postID + ".jpg");
-
-        } catch (FileNotFoundException fne) {
-            log.info("You did not specify a file to upload.");
-
-        } finally {
-            if (out != null) {
-                out.close();
-            }
-            if (filecontent != null) {
-                filecontent.close();
-            }
+            out.flush();
+            out.close();
+        }
+        catch (IOException e){
+            throw new IOException("Shit's fucked, yo.");
         }
     }
 
