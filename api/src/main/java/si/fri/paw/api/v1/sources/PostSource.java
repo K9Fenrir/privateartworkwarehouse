@@ -1,6 +1,11 @@
 package si.fri.paw.api.v1.sources;
 
 import com.google.common.io.Files;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.json.JSONException;
@@ -19,8 +24,6 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.*;
-import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -42,7 +45,15 @@ public class PostSource {
 
     private static final Logger log = Logger.getLogger(PostSource.class.getName());
 
-
+    @Operation(description = "Create new post", summary = "Post", tags = "Posts", responses = {
+            @ApiResponse(responseCode = "201",
+                    description = "Successfully create post",
+                    content = @Content(
+                            schema = @Schema(implementation = PostDTO.class))
+            ),
+            @ApiResponse(responseCode = "400",
+                    description = "Failed to create post due to invalid parameters")
+    })
     @POST
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_JSON)
@@ -65,8 +76,6 @@ public class PostSource {
             pdto.setFileExtension(fileExtension);
             pdto.setFileInputStream(fileInputStream);
 
-
-            log.info("Creating new post.");
             PostDTO post = createBean.createNewPost(pdto);
 
             return Response.status(Response.Status.CREATED).entity(post).build();
@@ -77,7 +86,15 @@ public class PostSource {
 
     }
 
-
+    @Operation(description = "Return specific post by ID", summary = "Post", tags = "Posts", responses = {
+            @ApiResponse(responseCode = "200",
+                    description = "Full post info",
+                    content = @Content(
+                            schema = @Schema(implementation = PostDTO.class))
+            ),
+            @ApiResponse(responseCode = "404",
+                    description = "Post not found")
+    })
     @GET
     @Path("{id}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -92,6 +109,15 @@ public class PostSource {
         }
     }
 
+    @Operation(description = "Get post list by tags", summary = "Post list", tags = "Posts", responses = {
+            @ApiResponse(responseCode = "200",
+                    description = "Retrieved requested posts",
+                    content = @Content(
+                            array = @ArraySchema(schema = @Schema(implementation = PostDTO.class)))
+            ),
+            @ApiResponse(responseCode = "500",
+                    description = "Failed to retrieve posts due to server error")
+    })
     @GET
     @Path("search/{tags}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -106,6 +132,15 @@ public class PostSource {
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
     }
 
+    @Operation(description = "Add new favourite to post", summary = "Post", tags = "Posts", responses = {
+            @ApiResponse(responseCode = "200",
+                    description = "Added favourite to post",
+                    content = @Content(
+                            schema = @Schema(implementation = PostDTO.class))
+            ),
+            @ApiResponse(responseCode = "500",
+                    description = "Failed to add favourite to post due to server error")
+    })
     @PUT
     @Path("favourite/{id}/add")
     @Produces(MediaType.APPLICATION_JSON)
@@ -129,6 +164,15 @@ public class PostSource {
         }
     }
 
+    @Operation(description = "Remove favourite from post", summary = "Post", tags = "Posts", responses = {
+            @ApiResponse(responseCode = "200",
+                    description = "Removed favourite from post",
+                    content = @Content(
+                            schema = @Schema(implementation = PostDTO.class))
+            ),
+            @ApiResponse(responseCode = "500",
+                    description = "Failed to remove favourite from post due to server error")
+    })
     @PUT
     @Path("favourite/{id}/remove")
     @Produces(MediaType.APPLICATION_JSON)
@@ -152,6 +196,15 @@ public class PostSource {
         }
     }
 
+    @Operation(description = "Add tags to post", summary = "Post", tags = "Posts", responses = {
+            @ApiResponse(responseCode = "200",
+                    description = "Added tags to post",
+                    content = @Content(
+                            schema = @Schema(implementation = PostDTO.class))
+            ),
+            @ApiResponse(responseCode = "404",
+                    description = "Post not found")
+    })
     @PUT
     @Path("tags/{id}/add/{tags}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -169,6 +222,15 @@ public class PostSource {
         return  Response.status(Response.Status.NOT_FOUND).build();
     }
 
+    @Operation(description = "Remove tags from post", summary = "Post", tags = "Posts", responses = {
+            @ApiResponse(responseCode = "200",
+                    description = "Removed tags from post",
+                    content = @Content(
+                            schema = @Schema(implementation = PostDTO.class))
+            ),
+            @ApiResponse(responseCode = "404",
+                    description = "Post not found")
+    })
     @PUT
     @Path("tags/{id}/remove/{tags}")
     @Produces(MediaType.APPLICATION_JSON)

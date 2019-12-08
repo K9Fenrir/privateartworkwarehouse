@@ -1,5 +1,6 @@
 package si.fri.paw.servlet;
 
+import si.fir.paw.utility.Exceptions.InvalidParameterException;
 import si.fir.paw.utility.beans.CreateBean;
 import si.fir.paw.utility.dtos.create.UserCreateDTO;
 
@@ -31,9 +32,12 @@ public class UserServlet extends HttpServlet {
         UserCreateDTO udto = new UserCreateDTO();
         udto.setUsername(username);
         udto.setEmail(email);
+        try {
+            createBean.createNewUser(udto);
+        }
+        catch (InvalidParameterException e){
 
-        createBean.createNewUser(udto);
-
+        }
         resp.sendRedirect("servlet");
     }
 }

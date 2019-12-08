@@ -17,4 +17,5 @@ buildNumber.properties
 
 ## Directory-based project format:
 .idea/
-images/*
+images/
+ObjectStore

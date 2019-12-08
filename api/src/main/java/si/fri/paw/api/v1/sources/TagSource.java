@@ -1,7 +1,13 @@
 package si.fri.paw.api.v1.sources;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.json.JSONException;
 import org.json.JSONObject;
+import si.fir.paw.utility.Exceptions.InvalidParameterException;
 import si.fir.paw.utility.beans.CreateBean;
 import si.fir.paw.utility.beans.DeleteBean;
 import si.fir.paw.utility.beans.ReadBean;
@@ -38,10 +44,21 @@ public class TagSource {
 
     private static final Logger log = Logger.getLogger(TagSource.class.getName());
 
+
+    @Operation(description = "Create new tag", summary = "Create tag", tags = "Tags", responses = {
+            @ApiResponse(responseCode = "201",
+                    description = "Successfully created new tag",
+                    content = @Content(
+                            schema = @Schema(implementation = TagDTO.class))
+            ),
+            @ApiResponse(responseCode = "400",
+                    description = "Failed to create tag due to invalid parameters"
+            )
+    })
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response createNewTag(String jsonString){
+    public Response createNewTag(String jsonString) throws InvalidParameterException {
 
         try {
             JSONObject json = new JSONObject(jsonString);
@@ -56,11 +73,20 @@ public class TagSource {
             return Response.status(Response.Status.CREATED).entity(tag).build();
         }
         catch (JSONException jsne){
-            log.warning("Error parsing json.");
-            return Response.status(Response.Status.BAD_REQUEST).entity(jsne).build();
+            throw new InvalidParameterException("Request JSON is invalid");
         }
     }
 
+    @Operation(description = "Get all tags", summary = "Get all tags", tags = "Tags", responses = {
+            @ApiResponse(responseCode = "200",
+                    description = "Retrieved specified tag",
+                    content = @Content(
+                            array = @ArraySchema(schema = @Schema(implementation = TagDTO.class)))
+            ),
+            @ApiResponse(responseCode = "500",
+                    description = "Unable to retrieve tags"
+            )
+    })
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAllTags(){
@@ -71,9 +97,22 @@ public class TagSource {
             return Response.status(Response.Status.OK).entity(tags).build();
         }
 
-        return Response.status(Response.Status.NOT_FOUND).build();
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
     }
 
+    @Operation(description = "Get tag by name", summary = "Get tag", tags = "Tags", responses = {
+            @ApiResponse(responseCode = "200",
+                    description = "Retrieved specified tag",
+                    content = @Content(
+                            schema = @Schema(implementation = TagDTO.class))
+            ),
+            @ApiResponse(responseCode = "404",
+                    description = "User not found"
+            ),
+            @ApiResponse(responseCode = "400",
+                    description = "Invalid parameters"
+            )
+    })
     @GET
     @Path("{id}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -88,11 +127,24 @@ public class TagSource {
         return  Response.status(Response.Status.NOT_FOUND).build();
     }
 
+    @Operation(description = "Update tag by name", summary = "Update tag", tags = "Tags", responses = {
+            @ApiResponse(responseCode = "200",
+                    description = "Updated specified tag",
+                    content = @Content(
+                            schema = @Schema(implementation = TagDTO.class))
+            ),
+            @ApiResponse(responseCode = "404",
+                    description = "tag not found"
+            ),
+            @ApiResponse(responseCode = "400",
+                    description = "Invalid parameters"
+            )
+    })
     @PUT
     @Path("{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response updateTagById(@PathParam("id") String id, String jsonString){
+    public Response updateTagById(@PathParam("id") String id, String jsonString) throws InvalidParameterException{
 
         try {
             JSONObject json = new JSONObject(jsonString);
@@ -116,6 +168,17 @@ public class TagSource {
         }
     }
 
+    @Operation(description = "Delete tag by name", summary = "Delete tag", tags = "Tags", responses = {
+            @ApiResponse(responseCode = "204",
+                    description = "Deleted specified tag"
+            ),
+            @ApiResponse(responseCode = "404",
+                    description = "User not found"
+            ),
+            @ApiResponse(responseCode = "401",
+                    description = "User not authorized"
+            )
+    })
     @DELETE
     @Path("{id}")
     @Consumes(MediaType.APPLICATION_JSON)

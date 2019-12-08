@@ -33,8 +33,7 @@ public class TagServlet extends HttpServlet {
         tdto.setName(name);
         tdto.setDescription(description);
         tdto.setType(type);
-
-        createBean.createNewTag(tdto);
+        
 
         resp.sendRedirect("servlet");
     }

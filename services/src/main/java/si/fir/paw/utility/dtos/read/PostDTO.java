@@ -23,12 +23,6 @@ public class PostDTO implements Serializable {
 
     private List<String> tagNames;
 
-
-    // Create-specific data
-
-    private Part filePart;
-
-
     // Read-specific data
 
     private List<UserDTO> favourtedBy;
@@ -92,14 +86,6 @@ public class PostDTO implements Serializable {
 
     public void setTagNames(List<String> tagNames) {
         this.tagNames = tagNames;
-    }
-
-    public Part getFilePart() {
-        return filePart;
-    }
-
-    public void setFilePart(Part filePart) {
-        this.filePart = filePart;
     }
 
     public List<UserDTO> getFavourtedBy() {

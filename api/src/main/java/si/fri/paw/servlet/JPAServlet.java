@@ -1,5 +1,6 @@
 package si.fri.paw.servlet;
 
+import si.fir.paw.utility.Exceptions.InvalidParameterException;
 import si.fir.paw.utility.beans.*;
 import si.fir.paw.utility.dtos.create.PostCreateDTO;
 import si.fir.paw.utility.dtos.delete.PostDeleteDTO;
@@ -220,6 +221,8 @@ public class JPAServlet extends HttpServlet {
             createBean.createNewPost(p1);
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (InvalidParameterException e){
+
         }
 
         PostCreateDTO p2 = new PostCreateDTO();
@@ -233,6 +236,8 @@ public class JPAServlet extends HttpServlet {
             createBean.createNewPost(p2);
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (InvalidParameterException e){
+
         }
 
         PostUpdateDTO t1 = new PostUpdateDTO();
@@ -274,7 +279,7 @@ public class JPAServlet extends HttpServlet {
         t1.setDescription("Edited description");
         t1.setType("artist");
 
-        updateBean.updateTag(t1);
+ //       updateBean.updateTag(t1);
 
     }
 
@@ -285,8 +290,8 @@ public class JPAServlet extends HttpServlet {
         u1.setNewUsername("Asistent");
         u1.setNewEmail("asistent@gmail.com");
 
-        updateBean.updateUserUsername(u1);
-        updateBean.updateUserEmail(u1);
+  //      updateBean.updateUserUsername(u1);
+  //      updateBean.updateUserEmail(u1);
     }
 
     private void demoDeleteTag(){

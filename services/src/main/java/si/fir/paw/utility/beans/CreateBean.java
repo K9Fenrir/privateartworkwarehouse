@@ -1,5 +1,6 @@
 package si.fir.paw.utility.beans;
 
+import si.fir.paw.utility.Exceptions.InvalidParameterException;
 import si.fir.paw.utility.dtos.create.PostCreateDTO;
 import si.fir.paw.utility.dtos.create.TagCreateDTO;
 import si.fir.paw.utility.dtos.create.UserCreateDTO;
@@ -18,6 +19,8 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.servlet.http.Part;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.UriInfo;
 import java.io.*;
 import java.nio.file.Files;
 import java.util.Arrays;
@@ -37,16 +40,16 @@ public class CreateBean {
     @Inject
     UserBean userBean;
 
+    @Context
+    protected UriInfo uriInfo;
+
     private static final Logger log = Logger.getLogger(CreateBean.class.getName());
 
-    public PostDTO createNewPost(PostCreateDTO pdto) throws IOException{
+    public PostDTO createNewPost(PostCreateDTO pdto) throws IOException, InvalidParameterException{
         if (validatePostRating(pdto.getRating())) {
-
-            log.info("Validated rating.");
 
             Post newPost = postBean.addPost(pdto.getTagNames(), pdto.getDescription(), pdto.getRating().toLowerCase(), pdto.getAuthorID());
 
-            log.info("DB entry created.");
             if (pdto.getFileInputStream() != null){
 
                 saveImage(pdto.getFileInputStream(), newPost.getId(), pdto.getFileExtension());
@@ -58,7 +61,7 @@ public class CreateBean {
         return null;
     }
 
-    public UserDTO createNewUser(UserCreateDTO udto){
+    public UserDTO createNewUser(UserCreateDTO udto) throws InvalidParameterException {
 
         if (validateEmail(udto.getEmail()) && validateUsername(udto.getUsername())){
             User newUser = userBean.addNewUser(udto.getUsername(), udto.getEmail());
@@ -67,23 +70,17 @@ public class CreateBean {
 
             return UserMapper.userToDTO(newUser);
         }
-        else{
-            log.info("User creation failed: invalid parameters");
-        }
 
         return null;
     }
 
-    public TagDTO createNewTag(TagCreateDTO tdto){
+    public TagDTO createNewTag(TagCreateDTO tdto) throws InvalidParameterException{
         if (validateTagName(tdto.getName()) && validateTagType(tdto.getType())){
             Tag newTag = tagBean.addNewTag(tdto.getName().toLowerCase(), tdto.getDescription(), tdto.getType().toLowerCase());
 
             log.info("New Tag was added: " + newTag.getId());
 
             return TagMapper.tagToDTO(newTag);
-        }
-        else{
-            log.info("Tag creation failed: invalid parameters");
         }
 
         return null;
@@ -109,69 +106,64 @@ public class CreateBean {
     }
 
     // Email has to be a valid email address
-    private boolean validateEmail(String email){
+    private boolean validateEmail(String email) throws InvalidParameterException{
         String regex = "^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$";
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(email);
 
-        boolean valid = matcher.matches();
-        if (!valid){
-            log.info("Invalid email: " + email);
+        if (!matcher.matches()){
+            throw new InvalidParameterException("'" + email + "' is not a valid e-mail address");
         }
 
-        return valid;
+        return true;
     }
 
     // Username can only contain lower & uppercase letters, digits from 0 to 9, underscores, dots, and dashes
-    private boolean validateUsername(String username){
+    private boolean validateUsername(String username) throws InvalidParameterException{
         String regex = "^[a-zA-Z0-9._-]{3,}$";
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(username);
 
-        boolean valid = matcher.matches();
-        if (!valid){
-            log.info("Invalid username: " + username);
+        if (!matcher.matches()){
+            throw new InvalidParameterException("'" + username + "' is not a valid username");
         }
 
-        return valid;
+        return true;
     }
 
     // Tag name can only contain lower & uppercase letters, digits from 0 to 9, underscores, and dashes
-    private boolean validateTagName(String tagName){
+    private boolean validateTagName(String tagName) throws InvalidParameterException{
         String regex = "^[a-zA-Z0-9_/-]{3,}$";
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(tagName);
 
-        boolean valid = matcher.matches();
-        if (!valid){
-            log.info("Invalid tag name: " + tagName);
+        if (!matcher.matches()){
+            throw new InvalidParameterException("'" + tagName + "' is not a valid tag name");
         }
 
-        return valid;
+        return true;
     }
 
     // Tag type can only be one of four acceptable
-    private boolean validateTagType(String tagType){
-        String[] validTypes = new String[]{"artist", "copyright", "species", "general"};
-        boolean valid = Arrays.stream(validTypes).anyMatch(tagType.toLowerCase()::equals);
+    private boolean validateTagType(String tagType) throws InvalidParameterException{
+        String[] validTypes = new String[]{"artist", "character", "copyright", "species", "general"};
 
-        if (!valid){
-            log.info("Invalid tag type: " + tagType);
+        if (!Arrays.stream(validTypes).anyMatch(tagType.toLowerCase()::equals)){
+            throw new InvalidParameterException("'" + tagType + "' is not a valid tag type");
         }
 
-        return valid;
+        return true;
     }
 
     // Post rating can only be one of three acceptable
-    private boolean validatePostRating(String rating){
-        String[] validTypes = new String[]{"safe", "questionable", "explicit"};
-        boolean valid = Arrays.stream(validTypes).anyMatch(rating.toLowerCase()::equals);
+    private boolean validatePostRating(String rating) throws InvalidParameterException{
+        String[] validRatings = new String[]{"safe", "questionable", "explicit"};
 
-        if (!valid){
-            log.info("Invalid post rating: " + rating);
+        if (!Arrays.stream(validRatings).anyMatch(rating.toLowerCase()::equals)){
+            throw new InvalidParameterException("'" + rating + "' is not a valid post rating");
         }
 
-        return valid;
+        return true;
     }
 
 }

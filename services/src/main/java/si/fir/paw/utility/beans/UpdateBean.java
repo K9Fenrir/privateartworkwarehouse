@@ -1,5 +1,6 @@
 package si.fir.paw.utility.beans;
 
+import si.fir.paw.utility.Exceptions.InvalidParameterException;
 import si.fir.paw.utility.dtos.read.PostDTO;
 import si.fir.paw.utility.dtos.read.TagDTO;
 import si.fir.paw.utility.dtos.update.PostUpdateDTO;
@@ -121,7 +122,7 @@ public class UpdateBean {
         return PostMapper.postToDTO(editedPost);
     }
 
-    public PostDTO updatePostRating(PostUpdateDTO pdto){
+    public PostDTO updatePostRating(PostUpdateDTO pdto) throws InvalidParameterException{
         if (validatePostRating(pdto.getNewRating())) {
             Post editedPost = postBean.editRating(pdto.getEditPostID(), pdto.getNewRating());
 
@@ -138,7 +139,7 @@ public class UpdateBean {
         return null;
     }
 
-    public TagDTO updateTag(TagUpdateDTO tdto){
+    public TagDTO updateTag(TagUpdateDTO tdto) throws InvalidParameterException{
         if (validateTagType(tdto.getType())) {
             Tag editedTag = tagBean.editTag(tdto.getId(), tdto.getDescription(), tdto.getType().toLowerCase());
 
@@ -158,7 +159,7 @@ public class UpdateBean {
         return  null;
     }
 
-    public UserDTO updateUserUsername(UserUpdateDTO udto){
+    public UserDTO updateUserUsername(UserUpdateDTO udto) throws InvalidParameterException{
         if (validateUsername(udto.getNewUsername())){
             User editedUser = userBean.updateUserUsername(udto.getId(), udto.getNewUsername());
 
@@ -178,7 +179,7 @@ public class UpdateBean {
         return null;
     }
 
-    public UserDTO updateUserEmail(UserUpdateDTO udto){
+    public UserDTO updateUserEmail(UserUpdateDTO udto) throws InvalidParameterException{
         if (validateEmail(udto.getNewEmail())){
             User editedUser = userBean.updateUserEmail(udto.getId(), udto.getNewEmail());
 
@@ -215,27 +216,25 @@ public class UpdateBean {
     }
 
     // Tag type can only be one of four acceptable
-    private boolean validateTagType(String tagType){
+    private boolean validateTagType(String tagType) throws InvalidParameterException{
         String[] validTypes = new String[]{"artist", "copyright", "species", "general"};
-        boolean valid = Arrays.stream(validTypes).anyMatch(tagType.toLowerCase()::equals);
 
-        if (!valid){
-            log.info("Invalid tag type: " + tagType);
+        if (!Arrays.stream(validTypes).anyMatch(tagType.toLowerCase()::equals)){
+            throw new InvalidParameterException("'" + tagType + "' is not a valid post rating");
         }
 
-        return valid;
+        return true;
     }
 
     // Post rating can only be one of three acceptable
-    private boolean validatePostRating(String rating){
-        String[] validTypes = new String[]{"safe", "questionable", "explicit"};
-        boolean valid = Arrays.stream(validTypes).anyMatch(rating.toLowerCase()::equals);
+    private boolean validatePostRating(String rating) throws InvalidParameterException{
+        String[] validRatings = new String[]{"safe", "questionable", "explicit"};
 
-        if (!valid){
-            log.info("Invalid post rating: " + rating);
+        if (!Arrays.stream(validRatings).anyMatch(rating.toLowerCase()::equals)){
+            throw new InvalidParameterException("'" + rating + "' is not a valid post rating");
         }
 
-        return valid;
+        return true;
     }
 
     private String tagSetToString(Set<Tag> tags){
@@ -259,31 +258,29 @@ public class UpdateBean {
     }
 
     // Email has to be a valid email address
-    private boolean validateEmail(String email){
+    private boolean validateEmail(String email) throws InvalidParameterException{
         String regex = "^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$";
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(email);
 
-        boolean valid = matcher.matches();
-        if (!valid){
-            log.info("Invalid edit email: " + email);
+        if (!matcher.matches()){
+            throw new InvalidParameterException("'" + email + "' is not a valid e-mail");
         }
 
-        return valid;
+        return true;
     }
 
     // Username can only contain lower & uppercase letters, digits from 0 to 9, underscores, dots, and dashes
-    private boolean validateUsername(String username){
+    private boolean validateUsername(String username) throws InvalidParameterException{
         String regex = "^[a-zA-Z0-9._-]{3,}$";
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(username);
 
-        boolean valid = matcher.matches();
-        if (!valid){
-            log.info("Invalid edit username: " + username);
+        if (!matcher.matches()){
+            throw new InvalidParameterException("'" + username + "' is not a valid username");
         }
 
-        return valid;
+        return true;
     }
 
 }

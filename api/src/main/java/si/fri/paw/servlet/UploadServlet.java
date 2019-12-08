@@ -39,7 +39,7 @@ public class UploadServlet extends HttpServlet {
         pdto.setTagNames(tags.split(" "));
 //        pdto.setFilePart(filePart);
 
-        createBean.createNewPost(pdto);
+//        createBean.createNewPost(pdto);
 
         resp.sendRedirect("servlet");
 
