@@ -4,36 +4,16 @@ import java.io.Serializable;
 
 public class UserDeleteDTO implements Serializable {
 
-    private int toDeleteID;
-
-    private int userID;
-
-    private String password;
+    private String username;
 
     public UserDeleteDTO(){
     }
 
-    public int getToDeleteID() {
-        return toDeleteID;
+    public String getUsername() {
+        return username;
     }
 
-    public void setToDeleteID(int toDeleteID) {
-        this.toDeleteID = toDeleteID;
-    }
-
-    public int getUserID() {
-        return userID;
-    }
-
-    public void setUserID(int userID) {
-        this.userID = userID;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
+    public void setUsername(String username) {
+        this.username = username;
     }
 }

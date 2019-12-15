@@ -1,11 +1,15 @@
-package si.fir.paw.utility.beans;
+package si.fir.paw.utility.beans.service;
 
+import si.fir.paw.utility.beans.entity.PostBean;
+import si.fir.paw.utility.beans.entity.TagBean;
+import si.fir.paw.utility.beans.entity.UserBean;
 import si.fir.paw.utility.dtos.delete.PostDeleteDTO;
 import si.fir.paw.utility.dtos.delete.TagDeleteDTO;
 import si.fir.paw.utility.dtos.delete.UserDeleteDTO;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.persistence.PersistenceException;
 import java.io.File;
 import java.util.logging.Logger;
 
@@ -50,17 +54,8 @@ public class DeleteBean {
         return success;
     }
 
-    public boolean deleteUser(UserDeleteDTO udto){
-        boolean success = userBean.removeUser(udto.getToDeleteID());
-
-        if (success){
-            log.info("Deleted user " + udto.getToDeleteID());
-        }
-        else{
-            log.info("Failed to delete user " + udto.getToDeleteID());
-        }
-
-        return success;
+    public void deleteUser(UserDeleteDTO udto) throws PersistenceException {
+        userBean.deleteUser(udto.getUsername());
     }
 
     private void deleteFile(int imageID){

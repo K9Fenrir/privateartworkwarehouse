@@ -1,6 +1,9 @@
-package si.fir.paw.utility.beans;
+package si.fir.paw.utility.beans.service;
 
 import si.fir.paw.utility.Exceptions.InvalidParameterException;
+import si.fir.paw.utility.beans.entity.PostBean;
+import si.fir.paw.utility.beans.entity.TagBean;
+import si.fir.paw.utility.beans.entity.UserBean;
 import si.fir.paw.utility.dtos.read.PostDTO;
 import si.fir.paw.utility.dtos.read.TagDTO;
 import si.fir.paw.utility.dtos.update.PostUpdateDTO;
@@ -10,17 +13,16 @@ import si.fir.paw.utility.dtos.update.UserUpdateDTO;
 import si.fir.paw.utility.mappers.PostMapper;
 import si.fir.paw.utility.mappers.TagMapper;
 import si.fir.paw.utility.mappers.UserMapper;
+import si.fir.paw.utility.validation.InputValidation;
 import si.fri.paw.entities.Post;
 import si.fri.paw.entities.Tag;
 import si.fri.paw.entities.User;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.util.Arrays;
+import javax.persistence.PersistenceException;
 import java.util.Set;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @ApplicationScoped
 public class UpdateBean {
@@ -123,7 +125,7 @@ public class UpdateBean {
     }
 
     public PostDTO updatePostRating(PostUpdateDTO pdto) throws InvalidParameterException{
-        if (validatePostRating(pdto.getNewRating())) {
+        if (InputValidation.validatePostRating(pdto.getNewRating())) {
             Post editedPost = postBean.editRating(pdto.getEditPostID(), pdto.getNewRating());
 
             if (editedPost != null){
@@ -139,102 +141,29 @@ public class UpdateBean {
         return null;
     }
 
-    public TagDTO updateTag(TagUpdateDTO tdto) throws InvalidParameterException{
-        if (validateTagType(tdto.getType())) {
-            Tag editedTag = tagBean.editTag(tdto.getId(), tdto.getDescription(), tdto.getType().toLowerCase());
+    public TagDTO updateTag(TagUpdateDTO tdto) throws InvalidParameterException, PersistenceException{
+        InputValidation.validateTagType(tdto.getType());
 
-            if (editedTag != null) {
-                log.info("Edited tag '" + editedTag.getId() + "'");
+        Tag editedTag = tagBean.editTag(tdto.getId(), tdto.getDescription(), tdto.getType().toLowerCase());
+        log.info("Edited tag '" + editedTag.getId() + "'");
 
-                return TagMapper.tagToDTO(editedTag);
-            }
-            else{
-                log.info("Failed to edit tag '" + tdto.getId() + "': tag does not exist");
-            }
-        }
-        else{
-            log.info("Failed to edit tag '" + tdto.getId() + "': invalid tag type '" + tdto.getType() + "'");
-        }
-
-        return  null;
+        return TagMapper.tagToDTO(editedTag);
     }
 
-    public UserDTO updateUserUsername(UserUpdateDTO udto) throws InvalidParameterException{
-        if (validateUsername(udto.getNewUsername())){
-            User editedUser = userBean.updateUserUsername(udto.getId(), udto.getNewUsername());
+    public UserDTO updateUserEmail(UserUpdateDTO udto) throws InvalidParameterException, PersistenceException{
+        InputValidation.validateEmail(udto.getNewEmail());
 
-            if (editedUser != null){
-                log.info("Edited username of user " + editedUser.getId() + "to '" + editedUser.getUsername() + "'");
+        User editedUser = userBean.updateUserEmail(udto.getUsername(), udto.getNewEmail());
+        log.info("Edited email of user " + editedUser.getUsername() + "to '" + editedUser.getEmail() + "'");
 
-                return UserMapper.userToDTO(editedUser);
-            }
-            else{
-                log.info("Failed to edit username of user " + udto.getId() + ": user does not exist");
-            }
-        }
-        else{
-            log.info("Failed to edit username of user " + udto.getId() + ": invalid new username");
-        }
-
-        return null;
+        return UserMapper.userToDTO(editedUser);
     }
 
-    public UserDTO updateUserEmail(UserUpdateDTO udto) throws InvalidParameterException{
-        if (validateEmail(udto.getNewEmail())){
-            User editedUser = userBean.updateUserEmail(udto.getId(), udto.getNewEmail());
+    public UserDTO updateUserAdminStatus(UserUpdateDTO udto) throws PersistenceException{
+        User editedUser = userBean.updateUserAdminStatus(udto.getUsername(), udto.isAdmin());
+        log.info("Edited admin status of user " + editedUser.getUsername() + "to '" + udto.isAdmin() + "'");
 
-            if (editedUser != null){
-                log.info("Edited email of user " + editedUser.getId() + "to '" + editedUser.getEmail() + "'");
-            }
-            else{
-                log.info("Failed to edit email of user " + udto.getId() + ": user does not exist");
-            }
-
-            return UserMapper.userToDTO(editedUser);
-        }
-        else{
-            log.info("Failed to edit email of user " + udto.getId() + ": invalid new email");
-        }
-
-        return null;
-    }
-
-    public UserDTO updateUserAdminStatus(UserUpdateDTO udto){
-        User editedUser = userBean.updateUserAdminStatus(udto.getId(), udto.isAdmin());
-
-        if (editedUser != null){
-            log.info("Edited admin status of user " + editedUser.getId() + "to '" + udto.isAdmin() + "'");
-
-            return UserMapper.userToDTO(editedUser);
-
-        }
-        else{
-            log.info("Failed to edit email of user " + udto.getId() + ": user does not exist");
-        }
-
-        return null;
-    }
-
-    // Tag type can only be one of four acceptable
-    private boolean validateTagType(String tagType) throws InvalidParameterException{
-        String[] validTypes = new String[]{"artist", "copyright", "species", "general"};
-
-        if (!Arrays.stream(validTypes).anyMatch(tagType.toLowerCase()::equals)){
-            throw new InvalidParameterException("'" + tagType + "' is not a valid post rating");
-        }
-
-        return true;
-    }
-
-    // Post rating can only be one of three acceptable
-    private boolean validatePostRating(String rating) throws InvalidParameterException{
-        String[] validRatings = new String[]{"safe", "questionable", "explicit"};
-
-        if (!Arrays.stream(validRatings).anyMatch(rating.toLowerCase()::equals)){
-            throw new InvalidParameterException("'" + rating + "' is not a valid post rating");
-        }
-
-        return true;
+        return UserMapper.userToDTO(editedUser);
     }
 
     private String tagSetToString(Set<Tag> tags){
@@ -255,32 +184,6 @@ public class UpdateBean {
         listString = "[" + listString.substring(0, listString.length()-2) + "]";
 
         return listString;
-    }
-
-    // Email has to be a valid email address
-    private boolean validateEmail(String email) throws InvalidParameterException{
-        String regex = "^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$";
-        Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(email);
-
-        if (!matcher.matches()){
-            throw new InvalidParameterException("'" + email + "' is not a valid e-mail");
-        }
-
-        return true;
-    }
-
-    // Username can only contain lower & uppercase letters, digits from 0 to 9, underscores, dots, and dashes
-    private boolean validateUsername(String username) throws InvalidParameterException{
-        String regex = "^[a-zA-Z0-9._-]{3,}$";
-        Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(username);
-
-        if (!matcher.matches()){
-            throw new InvalidParameterException("'" + username + "' is not a valid username");
-        }
-
-        return true;
     }
 
 }

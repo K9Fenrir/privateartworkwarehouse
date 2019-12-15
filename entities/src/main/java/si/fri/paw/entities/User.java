@@ -1,5 +1,6 @@
 package si.fri.paw.entities;
 
+import javax.json.bind.annotation.JsonbTransient;
 import javax.persistence.*;
 import java.util.Set;
 
@@ -9,19 +10,17 @@ import java.util.Set;
                 @NamedQuery(name = "User.getAll", query = "SELECT u FROM users u"),
                 @NamedQuery(name = "User.getByUsername", query = "SELECT u FROM users u WHERE u.username = :username"),
                 @NamedQuery(name = "User.getByEmail", query = "SELECT u FROM users u WHERE u.email = :email"),
-                @NamedQuery(name = "User.getByID", query = "SELECT u FROM users u WHERE u.id = :id"),
-
         })
 
 public class User {
 
         @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
-        private Integer id;
-
         private String username;
 
         private String email;
+
+        @JsonbTransient
+        private String passHash;
 
         private boolean admin;
 
@@ -30,14 +29,6 @@ public class User {
 
         @ManyToMany(mappedBy = "favouritedBy")
         private Set<Post> favourites;
-
-        public Integer getId() {
-                return id;
-        }
-
-        public void setId(Integer id) {
-                this.id = id;
-        }
 
         public String getUsername() {
                 return username;
@@ -55,7 +46,15 @@ public class User {
                 this.email = email;
         }
 
-        public boolean getAdmin() {
+    public String getPassHash() {
+        return passHash;
+    }
+
+    public void setPassHash(String passHash) {
+        this.passHash = passHash;
+    }
+
+    public boolean isAdmin() {
                 return admin;
         }
 

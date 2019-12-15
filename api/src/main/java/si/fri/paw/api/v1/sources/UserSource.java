@@ -3,15 +3,17 @@ package si.fri.paw.api.v1.sources;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.json.JSONException;
 import org.json.JSONObject;
 import si.fir.paw.utility.Exceptions.InvalidParameterException;
-import si.fir.paw.utility.beans.CreateBean;
-import si.fir.paw.utility.beans.DeleteBean;
-import si.fir.paw.utility.beans.ReadBean;
-import si.fir.paw.utility.beans.UpdateBean;
+import si.fir.paw.utility.beans.service.CreateBean;
+import si.fir.paw.utility.beans.service.DeleteBean;
+import si.fir.paw.utility.beans.service.ReadBean;
+import si.fir.paw.utility.beans.service.UpdateBean;
 import si.fir.paw.utility.dtos.create.UserCreateDTO;
 import si.fir.paw.utility.dtos.read.UserDTO;
 import si.fir.paw.utility.dtos.delete.UserDeleteDTO;
@@ -19,6 +21,8 @@ import si.fir.paw.utility.dtos.update.UserUpdateDTO;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.json.JsonObject;
+import javax.persistence.PersistenceException;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -56,23 +60,11 @@ public class UserSource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response createNewUser(String jsonString) throws InvalidParameterException {
-
-        try {
-            JSONObject json = new JSONObject(jsonString);
-
-            UserCreateDTO udto = new UserCreateDTO();
-            udto.setUsername(json.getString("username"));
-            udto.setEmail(json.getString("email"));
+    public Response createNewUser(UserCreateDTO udto) throws InvalidParameterException, PersistenceException {
 
             UserDTO user = createBean.createNewUser(udto);
 
             return Response.status(Response.Status.CREATED).entity(user).build();
-
-        }
-        catch (JSONException jsne){
-            throw new InvalidParameterException("Request JSON is invalid.");
-        }
 
     }
 
@@ -88,14 +80,13 @@ public class UserSource {
     })
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getAllUsers(){
+    public Response getAllUsers() {
 
         List<UserDTO> users = readBean.getAllUsers();
 
-        if (users != null){
+        if (users != null) {
             return Response.status(Response.Status.OK).entity(users).build();
-        }
-        else{
+        } else {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -113,15 +104,11 @@ public class UserSource {
     @GET
     @Path("{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getUserById(@PathParam("id") int id){
+    public Response getUserByUsername(@PathParam("id") String username) throws PersistenceException {
 
-        UserDTO user = readBean.getUserByID(id);
+        UserDTO user = readBean.getUserByUsername(username);
 
-        if (user != null) {
-            return Response.status(Response.Status.OK).entity(user).build();
-        }
-
-        return Response.status(Response.Status.NOT_FOUND).build();
+        return Response.status(Response.Status.OK).entity(user).build();
     }
 
     @Operation(description = "Update information of specified user", summary = "Update user", tags = "Users", responses = {
@@ -141,27 +128,23 @@ public class UserSource {
     @Path("{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response updateUserById(@PathParam("id") int id, String jsonString) throws InvalidParameterException{
+    public Response updateUserEmail(@PathParam("id") String username, String jsonString) throws InvalidParameterException, PersistenceException {
 
         try {
             JSONObject json = new JSONObject(jsonString);
 
             UserUpdateDTO udto = new UserUpdateDTO();
-            udto.setId(id);
+            udto.setUsername(username);
             udto.setNewEmail(json.getString("email"));
 
+            udto.setUsername(username);
             UserDTO user = updateBean.updateUserEmail(udto);
 
-            if (user != null) {
-                return Response.status(Response.Status.OK).entity(user).build();
-            }
-            else{
-                return Response.status(Response.Status.NOT_FOUND).build();
-            }
-        }
-        catch (JSONException jsne){
+            return Response.status(Response.Status.OK).entity(user).build();
+
+        } catch (Exception e) {
             log.warning("Error parsing json.");
-            return Response.status(Response.Status.BAD_REQUEST).entity(jsne.getMessage()).build();
+            throw new InvalidParameterException("Request JSON is invalid");
         }
     }
 
@@ -181,25 +164,19 @@ public class UserSource {
     @PUT
     @Path("{id}/role")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response changeAdminStatus(@PathParam("id") int id, String jsonString){
+    public Response changeAdminStatus(@PathParam("username") String username, String jsonString) {
 
         try {
             JSONObject json = new JSONObject(jsonString);
 
             UserUpdateDTO udto = new UserUpdateDTO();
-            udto.setId(id);
+            udto.setUsername(username);
             udto.setAdminStatus(json.getBoolean("adminStatus"));
 
             UserDTO user = updateBean.updateUserAdminStatus(udto);
 
-            if (user != null) {
-                return Response.status(Response.Status.OK).entity(user).build();
-            }
-            else{
-                return Response.status(Response.Status.NOT_FOUND).build();
-            }
-        }
-        catch (JSONException jsne){
+            return Response.status(Response.Status.OK).entity(user).build();
+        } catch (JSONException jsne) {
             log.warning("Error parsing json.");
             return Response.status(Response.Status.BAD_REQUEST).entity(jsne.getMessage()).build();
         }
@@ -215,17 +192,14 @@ public class UserSource {
     })
     @DELETE
     @Path("{id}")
-    public Response deleteUserById(@PathParam("id") int id){
+    public Response deleteUserById(@PathParam("username") String username) throws PersistenceException {
 
         UserDeleteDTO udto = new UserDeleteDTO();
-        udto.setToDeleteID(id);
+        udto.setUsername(username);
 
-        if (deleteBean.deleteUser(udto)){
-            return Response.status(Response.Status.NO_CONTENT).build();
-        }
-        else {
-            return Response.status(Response.Status.BAD_REQUEST).build();
-        }
+        deleteBean.deleteUser(udto);
+
+        return Response.status(Response.Status.NO_CONTENT).build();
     }
 
 }

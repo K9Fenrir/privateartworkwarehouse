@@ -1,4 +1,4 @@
-package si.fir.paw.utility.beans;
+package si.fir.paw.utility.beans.entity;
 
 import si.fri.paw.entities.Post;
 import si.fri.paw.entities.Tag;

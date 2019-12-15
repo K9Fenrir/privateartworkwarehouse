@@ -1,7 +1,5 @@
 package si.fir.paw.utility.mappers;
 
-import org.json.JSONException;
-import org.json.JSONObject;
 import si.fir.paw.utility.dtos.read.PostDTO;
 import si.fir.paw.utility.dtos.read.UserDTO;
 import si.fri.paw.entities.Post;
@@ -25,10 +23,9 @@ public class UserMapper {
             favouriteList.add(PostMapper.minimalPostToDto(post));
         }
 
-        udto.setUserID(user.getId());
         udto.setUsername(user.getUsername());
         udto.setEmail(user.getEmail());
-        udto.setAdmin(user.getAdmin());
+        udto.setAdmin(user.isAdmin());
         udto.setFavourites(favouriteList);
         udto.setUploads(uploadList);
 
@@ -39,7 +36,6 @@ public class UserMapper {
 
         UserDTO udto = new UserDTO();
 
-        udto.setUserID(user.getId());
         udto.setUsername(user.getUsername());
 
         return udto;

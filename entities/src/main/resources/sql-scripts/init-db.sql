@@ -1,6 +1,6 @@
-INSERT INTO users (username, email) VALUES ('K9Fenrir', 'k9fenrir@gmail.com');
-INSERT INTO users (username, email) VALUES ('Heindell', 'heindell.lemuen@gmail.com');
-INSERT INTO users (username, email) VALUES ('Xelphos', 'xelphos@xelphos.com');
+INSERT INTO users (username, email, passHash) VALUES ('K9Fenrir', 'k9fenrir@gmail.com', '$2a$10$4yO6PJRYK1D0A32rrnHCP.C6lak5d8zoxUfG4OqenxTOIXMofxYce');
+INSERT INTO users (username, email, passHash) VALUES ('Heindell', 'heindell.lemuen@gmail.com', '$2a$10$4yO6PJRYK1D0A32rrnHCP.C6lak5d8zoxUfG4OqenxTOIXMofxYce');
+INSERT INTO users (username, email, passHash) VALUES ('Xelphos', 'xelphos@xelphos.com', '$2a$10$4yO6PJRYK1D0A32rrnHCP.C6lak5d8zoxUfG4OqenxTOIXMofxYce');
 INSERT INTO tag (id, description, type) VALUES ('F-R95', 'Image by F-R95', 'artist');
 INSERT INTO tag (id, description, type) VALUES ('Hioshiru', 'Image by Hioshiru', 'artist');
 INSERT INTO tag (id, description, type) VALUES ('canine', 'Contains species: canine', 'species');

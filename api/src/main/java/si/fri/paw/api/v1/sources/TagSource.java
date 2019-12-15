@@ -5,13 +5,15 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import org.jose4j.jwt.JwtClaims;
 import org.json.JSONException;
 import org.json.JSONObject;
 import si.fir.paw.utility.Exceptions.InvalidParameterException;
-import si.fir.paw.utility.beans.CreateBean;
-import si.fir.paw.utility.beans.DeleteBean;
-import si.fir.paw.utility.beans.ReadBean;
-import si.fir.paw.utility.beans.UpdateBean;
+import si.fir.paw.utility.beans.security.AuthorizationBean;
+import si.fir.paw.utility.beans.service.CreateBean;
+import si.fir.paw.utility.beans.service.DeleteBean;
+import si.fir.paw.utility.beans.service.ReadBean;
+import si.fir.paw.utility.beans.service.UpdateBean;
 import si.fir.paw.utility.dtos.create.TagCreateDTO;
 import si.fir.paw.utility.dtos.delete.TagDeleteDTO;
 import si.fir.paw.utility.dtos.read.TagDTO;
@@ -58,23 +60,12 @@ public class TagSource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response createNewTag(String jsonString) throws InvalidParameterException {
+    public Response createNewTag(TagCreateDTO tdto) throws InvalidParameterException {
 
-        try {
-            JSONObject json = new JSONObject(jsonString);
 
-            TagCreateDTO tdto = new TagCreateDTO();
-            tdto.setName(json.getString("name"));
-            tdto.setDescription(json.getString("description"));
-            tdto.setType(json.getString("type"));
+        TagDTO tag = createBean.createNewTag(tdto);
 
-            TagDTO tag = createBean.createNewTag(tdto);
-
-            return Response.status(Response.Status.CREATED).entity(tag).build();
-        }
-        catch (JSONException jsne){
-            throw new InvalidParameterException("Request JSON is invalid");
-        }
+        return Response.status(Response.Status.CREATED).entity(tag).build();
     }
 
     @Operation(description = "Get all tags", summary = "Get all tags", tags = "Tags", responses = {

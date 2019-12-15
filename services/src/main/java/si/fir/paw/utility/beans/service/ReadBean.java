@@ -1,5 +1,8 @@
-package si.fir.paw.utility.beans;
+package si.fir.paw.utility.beans.service;
 
+import si.fir.paw.utility.beans.entity.PostBean;
+import si.fir.paw.utility.beans.entity.TagBean;
+import si.fir.paw.utility.beans.entity.UserBean;
 import si.fir.paw.utility.dtos.read.PostDTO;
 import si.fir.paw.utility.dtos.read.TagDTO;
 import si.fir.paw.utility.dtos.read.UserDTO;
@@ -12,6 +15,7 @@ import si.fri.paw.entities.User;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.persistence.EntityNotFoundException;
 import javax.persistence.PersistenceException;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -40,8 +44,12 @@ public class ReadBean {
         return posts;
     }
 
-    public PostDTO getPostById(int id){
+    public PostDTO getPostById(int id) throws PersistenceException{
         Post post = postBean.getByID(id);
+
+        if (post == null){
+            throw new EntityNotFoundException("Post '" + id + "' could not be found");
+        }
 
         return PostMapper.postToDTO(post);
     }
@@ -106,16 +114,14 @@ public class ReadBean {
         return userDTOs;
     }
 
-    public UserDTO getUserByID(int id){
-        User user = userBean.getUserByID(id);
+    public UserDTO getUserByUsername(String username) throws PersistenceException{
+        User user = userBean.getUserByUsername(username);
+
+        if (user == null){
+            throw new EntityNotFoundException("User '" + username + "' could not be found.");
+        }
 
         return UserMapper.userToDTO(user);
-    }
-
-    public List<User> getUserByUsername(String username){
-        List<User> users = userBean.getUserByUsername(username);
-
-        return users;
     }
 
     private Set<Post> filterByTags(String[] tagNames, Set<Post> posts){

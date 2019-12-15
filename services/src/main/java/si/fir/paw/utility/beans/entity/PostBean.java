@@ -1,4 +1,4 @@
-package si.fir.paw.utility.beans;
+package si.fir.paw.utility.beans.entity;
 
 import si.fri.paw.entities.Post;
 import si.fri.paw.entities.Tag;
@@ -25,9 +25,7 @@ public class PostBean {
         return em.createNamedQuery("Post.getAll", Post.class).getResultList();
     }
 
-    public Post getByID(int id){
-        return em.find(Post.class, id);
-    }
+    public Post getByID(int id){ return em.find(Post.class, id); }
 
     @Transactional
     public Post addPost(String[] tagNames, String description, String rating, int authorID){
@@ -37,7 +35,6 @@ public class PostBean {
         for (String tagName : tagNames){
             Tag tag = em.find(Tag.class, tagName);
             if (tag != null){
-//                log.info("Found tag: " + tag.getId());
                 tags.add(tag);
             }
         }
@@ -58,7 +55,6 @@ public class PostBean {
         author.getUploads().add(newPost);
 
         em.persist(newPost);
-//        em.flush();
 
         return newPost;
 
@@ -183,9 +179,6 @@ public class PostBean {
                     em.merge(tag);
                 }
             }
-
-            em.merge(post);
-            em.flush();
         }
 
         return post;

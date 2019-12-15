@@ -10,16 +10,17 @@ import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.json.JSONException;
 import org.json.JSONObject;
-import si.fir.paw.utility.beans.CreateBean;
-import si.fir.paw.utility.beans.DeleteBean;
-import si.fir.paw.utility.beans.ReadBean;
-import si.fir.paw.utility.beans.UpdateBean;
+import si.fir.paw.utility.beans.service.CreateBean;
+import si.fir.paw.utility.beans.service.DeleteBean;
+import si.fir.paw.utility.beans.service.ReadBean;
+import si.fir.paw.utility.beans.service.UpdateBean;
 import si.fir.paw.utility.dtos.create.PostCreateDTO;
 import si.fir.paw.utility.dtos.read.PostDTO;
 import si.fir.paw.utility.dtos.update.PostUpdateDTO;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.persistence.PersistenceException;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -98,7 +99,7 @@ public class PostSource {
     @GET
     @Path("{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getPostById(@PathParam("id") int id) {
+    public Response getPostById(@PathParam("id") int id) throws PersistenceException {
 
         PostDTO post = readBean.getPostById(id);
 

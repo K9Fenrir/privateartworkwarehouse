@@ -18,7 +18,7 @@ public class InvalidParameterExceptionMapper implements ExceptionMapper<InvalidP
 
         try {
             json.put("message", exception.getMessage());
-            json.put("errorCode", 400);
+            json.put("status", 400);
         }
         catch (JSONException e){
             e.printStackTrace();

@@ -12,3 +12,22 @@ kumuluzee:
   openapi:
     ui:
       enabled: true
+  config:
+    start-retry-delay-ms: 500
+    max-retry-delay-ms: 900000
+    etcd:
+      hosts: http://192.168.99.100:2379
+  rest-config:
+    maintenance-mode: false
+  health:
+    servlet:
+      mapping: /health
+      enabled: true
+    checks:
+      data-source-health-check:
+        type: liveness
+        jndi-name: jdbc/paw
+      etcd-health-check:
+      - connection-url: http://192.168.99.100:2379/health
+  external:
+    notification-url: http://localhost:8081/v1/

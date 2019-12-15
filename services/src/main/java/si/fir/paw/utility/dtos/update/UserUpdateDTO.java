@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 public class UserUpdateDTO implements Serializable {
 
-    private int id;
+    private String username;
 
     private String newUsername;
 
@@ -12,19 +12,17 @@ public class UserUpdateDTO implements Serializable {
 
     private boolean adminStatus;
 
-    private String newPassword1;
-
-    private String newPassword2;
+    private String newPassword;
 
     public UserUpdateDTO(){
     }
 
-    public int getId() {
-        return id;
+    public String getUsername() {
+        return username;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getNewUsername() {
@@ -51,19 +49,11 @@ public class UserUpdateDTO implements Serializable {
         this.adminStatus = adminStatus;
     }
 
-    public String getNewPassword1() {
-        return newPassword1;
+    public String getNewPassword() {
+        return newPassword;
     }
 
-    public void setNewPassword1(String newPassword1) {
-        this.newPassword1 = newPassword1;
-    }
-
-    public String getNewPassword2() {
-        return newPassword2;
-    }
-
-    public void setNewPassword2(String newPassword2) {
-        this.newPassword2 = newPassword2;
+    public void setNewPassword(String newPassword) {
+        this.newPassword = newPassword;
     }
 }
